@@ -20,11 +20,11 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_DATABASE: "toptrendsdb"
           MYSQL_USER: "toptrends-user"
@@ -40,7 +40,7 @@ jobs:
         run: |
           mysql --version
           mysql --host 127.0.0.1 --port 3307 -uroot -ppassword -e "SHOW DATABASES"
-          mysql --host 127.0.0.1 --port 3307 -uroot -ppassword -e "GRANT ALL ON *.* TO 'toptrends-user'@'%' identified by 'toptrends-password'; FLUSH PRIVILEGES;"
+          mysql --host 127.0.0.1 --port 3307 -uroot -ppassword -e "GRANT ALL ON *.* TO 'toptrends-user'@'%'; FLUSH PRIVILEGES;"
       - name: Set up Python 3.10.5
         uses: actions/setup-python@v2
         with:
