@@ -12,6 +12,13 @@ URL_101_CHARS = 'https://www.' + 't' * 84 + '.com/'
 
 class YouTubeTrendTypeTestCase(TestCase):
 
+    def assert_yt_trend_type_attributes(self, yt_trend_type):
+        self.assertEqual(YouTubeTrendType.objects.count(), 1)
+        self.assertEqual(self.yt_trend_type.name, 'Music')
+        self.assertEqual(self.yt_trend_type.category_id, 10)
+        self.assertTrue(isinstance(self.yt_trend_type, YouTubeTrendType))
+        self.assertEqual(self.yt_trend_type.__str__(), self.yt_trend_type.name)
+
     def setUp(self):
         self.yt_trend_type = YouTubeTrendType.objects.create(
             name='Music', category_id=10)
@@ -22,11 +29,7 @@ class YouTubeTrendTypeTestCase(TestCase):
 
     def test_correct_yt_trend_type_model_creation(self):
 
-        self.assertEqual(YouTubeTrendType.objects.count(), 1)
-        self.assertEqual(self.yt_trend_type.name, 'Music')
-        self.assertEqual(self.yt_trend_type.category_id, 10)
-        self.assertTrue(isinstance(self.yt_trend_type, YouTubeTrendType))
-        self.assertEqual(self.yt_trend_type.__str__(), self.yt_trend_type.name)
+        self.assert_yt_trend_type_attributes(self.yt_trend_type)
 
     # 'name' field
 
@@ -83,9 +86,7 @@ class YouTubeTrendTypeTestCase(TestCase):
 
     def test_correct_yt_trend_type_model_update(self):
 
-        self.assertEqual(YouTubeTrendType.objects.count(), 1)
-        self.assertEqual(self.yt_trend_type.name, 'Music')
-        self.assertEqual(self.yt_trend_type.category_id, 10)
+        self.assert_yt_trend_type_attributes(self.yt_trend_type)
 
         self.yt_trend_type.name = 'Entertainment'
         self.yt_trend_type.category_id = 20
@@ -174,6 +175,20 @@ class YouTubeTrendTypeTestCase(TestCase):
 
 class YouTubeTrendModelTestCase(TestCase):
 
+    def assert_yt_trend_attributes(self, yt_trend):
+        self.assertEqual(YouTubeTrend.objects.count(), 1)
+        self.assertEqual(self.yt_trend.title, 'title')
+        self.assertEqual(self.yt_trend.published_at,
+                         datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
+        self.assertEqual(self.yt_trend.thumbnail, URL)
+        self.assertEqual(self.yt_trend.view_count, 1000)
+        self.assertEqual(self.yt_trend.like_count, 100)
+        self.assertEqual(self.yt_trend.comment_count, 50)
+        self.assertEqual(self.yt_trend.channel_title, 'channel_title')
+        self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
+        self.assertTrue(isinstance(self.yt_trend, YouTubeTrend))
+        self.assertEqual(self.yt_trend.__str__(), self.yt_trend.title)
+
     def setUp(self):
 
         country = Country.objects.create(name='Brazil', native_name='Brasil',
@@ -199,18 +214,7 @@ class YouTubeTrendModelTestCase(TestCase):
 
     def test_correct_yt_trend_model_create(self):
 
-        self.assertEqual(YouTubeTrend.objects.count(), 1)
-        self.assertEqual(self.yt_trend.title, 'title')
-        self.assertEqual(self.yt_trend.published_at,
-                         datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
-        self.assertEqual(self.yt_trend.thumbnail, URL)
-        self.assertEqual(self.yt_trend.view_count, 1000)
-        self.assertEqual(self.yt_trend.like_count, 100)
-        self.assertEqual(self.yt_trend.comment_count, 50)
-        self.assertEqual(self.yt_trend.channel_title, 'channel_title')
-        self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
-        self.assertTrue(isinstance(self.yt_trend, YouTubeTrend))
-        self.assertEqual(self.yt_trend.__str__(), self.yt_trend.title)
+        self.assert_yt_trend_attributes(self.yt_trend)
 
     # 'title' field
 
@@ -602,15 +606,7 @@ class YouTubeTrendModelTestCase(TestCase):
 
     def test_correct_yt_trend_model_update(self):
 
-        self.assertEqual(self.yt_trend.title, 'title')
-        self.assertEqual(self.yt_trend.published_at,
-                         datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
-        self.assertEqual(self.yt_trend.thumbnail, URL)
-        self.assertEqual(self.yt_trend.view_count, 1000)
-        self.assertEqual(self.yt_trend.like_count, 100)
-        self.assertEqual(self.yt_trend.comment_count, 50)
-        self.assertEqual(self.yt_trend.channel_title, 'channel_title')
-        self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
+        self.assert_yt_trend_attributes(self.yt_trend)
 
         country = Country.objects.create(name='Argentina', native_name='Argentina',
                                          acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
@@ -884,6 +880,14 @@ class YouTubeTrendModelTestCase(TestCase):
 
 class YouTubeCountryTrendModelTestCase(TestCase):
 
+    def assert_yt_country_trend_attributes(self, yt_country_trend):
+        self.assertEqual(YouTubeCountryTrend.objects.count(), 1)
+        self.assertEqual(self.yt_country_trend.country, self.country)
+        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+        self.assertTrue(isinstance(self.yt_country_trend, YouTubeCountryTrend))
+        self.assertEqual(self.yt_country_trend.__str__(),
+                         self.yt_country_trend.country.name)
+
     def setUp(self):
 
         self.country = Country.objects.create(
@@ -909,12 +913,7 @@ class YouTubeCountryTrendModelTestCase(TestCase):
 
     def test_correct_yt_country_trend_model_creation(self):
 
-        self.assertEqual(YouTubeCountryTrend.objects.count(), 1)
-        self.assertEqual(self.yt_country_trend.country, self.country)
-        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
-        self.assertTrue(isinstance(self.yt_country_trend, YouTubeCountryTrend))
-        self.assertEqual(self.yt_country_trend.__str__(),
-                         self.yt_country_trend.country.name)
+        self.assert_yt_country_trend_attributes(self.yt_country_trend)
 
     # 'country' field
 
@@ -951,8 +950,7 @@ class YouTubeCountryTrendModelTestCase(TestCase):
 
     def test_correct_yt_country_trend_model_update(self):
 
-        self.assertEqual(self.yt_country_trend.country, self.country)
-        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+        self.assert_yt_country_trend_attributes(self.yt_country_trend)
 
         country = Country.objects.create(name='Argentina', native_name='Argentina',
                                          acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')

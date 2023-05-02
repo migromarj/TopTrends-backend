@@ -13,6 +13,14 @@ TOPIC_TYPE = 'Topic type'
 
 class GoogleTrendsTestCase(TestCase):
 
+    def assert_google_trend_attributes(self, google):
+        self.assertEqual(GoogleTrend.objects.count(), 1)
+        self.assertEqual(self.google_trend.name, 'Trend')
+        self.assertEqual(self.google_trend.country_trend,
+                         self.google_country_trend)
+        self.assertTrue(isinstance(self.google_trend, GoogleTrend))
+        self.assertEqual(self.google_trend.__str__(), self.google_trend.name)
+
     def setUp(self):
 
         country = Country.objects.create(
@@ -28,12 +36,7 @@ class GoogleTrendsTestCase(TestCase):
 
     def test_correct_google_trend_model_creation(self):
 
-        self.assertEqual(GoogleTrend.objects.count(), 1)
-        self.assertEqual(self.google_trend.name, 'Trend')
-        self.assertEqual(self.google_trend.country_trend,
-                         self.google_country_trend)
-        self.assertTrue(isinstance(self.google_trend, GoogleTrend))
-        self.assertEqual(self.google_trend.__str__(), self.google_trend.name)
+        self.assert_google_trend_attributes(self.google_trend)
 
     # 'name' field
 
@@ -81,9 +84,7 @@ class GoogleTrendsTestCase(TestCase):
 
     def test_correct_google_trend_model_update(self):
 
-        self.assertEqual(self.google_trend.name, 'Trend')
-        self.assertEqual(self.google_trend.country_trend,
-                         self.google_country_trend)
+        self.assert_google_trend_attributes(self.google_trend)
 
         country = Country.objects.create(
             name='Argentina', native_name='Argentina', acronym='AR', flag=FLAG_URL_AR, woeid=332471, pn='argentina')
@@ -651,6 +652,17 @@ class GoogleWordTrendModelTestCase(TestCase):
 
 class GoogleTopicModelTestCase(TestCase):
 
+    def assert_google_topic_model_fields(self, google_topic):
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+        self.assertEqual(self.google_topic.topic_title, TOPIC_TITLE)
+        self.assertEqual(self.google_topic.topic_type, TOPIC_TYPE)
+        self.assertEqual(self.google_topic.value, 1)
+        self.assertEqual(self.google_topic.main_topic,
+                         self.google_related_topic)
+        self.assertTrue(isinstance(self.google_topic, GoogleTopic))
+        self.assertEqual(self.google_topic.__str__(
+        ), self.google_topic.main_topic.word + ' - ' + self.google_topic.topic_title)
+
     def setUp(self):
 
         country = Country.objects.create(
@@ -666,15 +678,7 @@ class GoogleTopicModelTestCase(TestCase):
 
     def test_correct_google_topic_model_creation(self):
 
-        self.assertEqual(GoogleTopic.objects.count(), 1)
-        self.assertEqual(self.google_topic.topic_title, TOPIC_TITLE)
-        self.assertEqual(self.google_topic.topic_type, TOPIC_TYPE)
-        self.assertEqual(self.google_topic.value, 1)
-        self.assertEqual(self.google_topic.main_topic,
-                         self.google_related_topic)
-        self.assertTrue(isinstance(self.google_topic, GoogleTopic))
-        self.assertEqual(self.google_topic.__str__(
-        ), self.google_topic.main_topic.word + ' - ' + self.google_topic.topic_title)
+        self.assert_google_topic_model_fields(self.google_topic)
 
     # 'topic_title' field
 
@@ -776,12 +780,7 @@ class GoogleTopicModelTestCase(TestCase):
 
     def test_correct_google_topic_model_update(self):
 
-        self.assertEqual(GoogleTopic.objects.count(), 1)
-        self.assertEqual(self.google_topic.topic_title, TOPIC_TITLE)
-        self.assertEqual(self.google_topic.topic_type, TOPIC_TYPE)
-        self.assertEqual(self.google_topic.value, 1)
-        self.assertEqual(self.google_topic.main_topic,
-                         self.google_related_topic)
+        self.assert_google_topic_model_fields(self.google_topic)
 
         country = Country.objects.create(
             name='Argentina', native_name='Argentina', acronym='AR', flag=FLAG_URL_AR, woeid=332471, pn='argentina')
@@ -931,6 +930,16 @@ class GoogleTopicModelTestCase(TestCase):
 
 class GoogleRelatedTopicModelTestCase(TestCase):
 
+    def assert_google_related_topic_model_fields(self, google_related_topic):
+        self.assertEqual(GoogleRelatedTopic.objects.count(), 1)
+        self.assertEqual(self.google_related_topic.word, 'Word')
+        self.assertEqual(self.google_related_topic.country, self.country)
+        self.assertEqual(self.google_related_topic.period_type, 'weekly')
+        self.assertTrue(isinstance(
+            self.google_related_topic, GoogleRelatedTopic))
+        self.assertEqual(self.google_related_topic.__str__(),
+                         self.google_related_topic.country.name + ' - ' + self.google_related_topic.word)
+
     def setUp(self):
 
         self.country = Country.objects.create(
@@ -946,14 +955,8 @@ class GoogleRelatedTopicModelTestCase(TestCase):
 
     def test_correct_google_related_topic_model_creation(self):
 
-        self.assertEqual(GoogleRelatedTopic.objects.count(), 1)
-        self.assertEqual(self.google_related_topic.word, 'Word')
-        self.assertEqual(self.google_related_topic.country, self.country)
-        self.assertEqual(self.google_related_topic.period_type, 'weekly')
-        self.assertTrue(isinstance(
-            self.google_related_topic, GoogleRelatedTopic))
-        self.assertEqual(self.google_related_topic.__str__(),
-                         self.google_related_topic.word)
+        self.assert_google_related_topic_model_fields(
+            self.google_related_topic)
 
     # 'word' field
 
@@ -1029,9 +1032,8 @@ class GoogleRelatedTopicModelTestCase(TestCase):
 
     def test_correct_google_related_topic_model_update(self):
 
-        self.assertEqual(self.google_related_topic.word, 'Word')
-        self.assertEqual(self.google_related_topic.country, self.country)
-        self.assertEqual(self.google_related_topic.period_type, 'weekly')
+        self.assert_google_related_topic_model_fields(
+            self.google_related_topic)
 
         self.google_related_topic.word = 'New word'
         self.google_related_topic.country = self.country

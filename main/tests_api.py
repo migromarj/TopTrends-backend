@@ -3,6 +3,14 @@ from django.test.testcases import TestCase
 import graphene
 
 
+def execute_query_and_assert_result(query):
+    schema = graphene.Schema(query=Query)
+    result = schema.execute(query)
+    assert result.errors is None
+    assert len(result.data['trendEmotions']) == 0
+    assert result.data['trendEmotions'] == []
+
+
 class CountriesTestCase(TestCase):
 
     def test_correct_all_countries(self):
@@ -848,11 +856,7 @@ class EmotionsTestCase(TestCase):
             }
         """
 
-        schema = graphene.Schema(query=Query)
-        result = schema.execute(query)
-        self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['trendEmotions']), 0)
-        self.assertEqual(result.data['trendEmotions'], [])
+        execute_query_and_assert_result(query)
 
     def test_correct_video_id_trend_emotions(self):
 
@@ -912,11 +916,7 @@ class EmotionsTestCase(TestCase):
             }
         """
 
-        schema = graphene.Schema(query=Query)
-        result = schema.execute(query)
-        self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['trendEmotions']), 0)
-        self.assertEqual(result.data['trendEmotions'], [])
+        execute_query_and_assert_result(query)
 
     def test_correct_trend_emotions_word_and_video_id(self):
 
@@ -940,8 +940,4 @@ class EmotionsTestCase(TestCase):
             }
         """
 
-        schema = graphene.Schema(query=Query)
-        result = schema.execute(query)
-        self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['trendEmotions']), 0)
-        self.assertEqual(result.data['trendEmotions'], [])
+        execute_query_and_assert_result(query)

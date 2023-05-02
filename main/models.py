@@ -44,17 +44,21 @@ class TwitterTrend(models.Model):
         ordering = ['id']
 
 
-class TwitterCountryTrend(models.Model):
-
+class CountryTrends(models.Model):
     id = models.AutoField(primary_key=True)
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
+    class Meta:
+        abstract = True
+        ordering = ['country', 'id']
+
     def __str__(self):
         return self.country.name
 
-    class Meta:
-        ordering = ['country', 'id']
+
+class TwitterCountryTrend(CountryTrends):
+    pass
 
 
 class GoogleTrend(models.Model):
@@ -71,17 +75,8 @@ class GoogleTrend(models.Model):
         ordering = ['id']
 
 
-class GoogleCountryTrend(models.Model):
-
-    id = models.AutoField(primary_key=True)
-    insertion_datetime = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.country.name
-
-    class Meta:
-        ordering = ['country', 'id']
+class GoogleCountryTrend(CountryTrends):
+    pass
 
 
 class GoogleWordTrendPeriod(models.Model):
@@ -98,8 +93,7 @@ class GoogleWordTrendPeriod(models.Model):
         ordering = ['-value', 'id']
 
 
-class GoogleWordTrend(models.Model):
-
+class GoogleTrends(models.Model):
     id = models.AutoField(primary_key=True)
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     word = models.CharField(max_length=100)
@@ -111,6 +105,10 @@ class GoogleWordTrend(models.Model):
 
     class Meta:
         ordering = ['country', 'word', 'id']
+
+
+class GoogleWordTrend(GoogleTrends):
+    pass
 
 
 class GoogleTopic(models.Model):
@@ -129,19 +127,8 @@ class GoogleTopic(models.Model):
         ordering = ['-value', 'id']
 
 
-class GoogleRelatedTopic(models.Model):
-
-    id = models.AutoField(primary_key=True)
-    insertion_datetime = models.DateTimeField(auto_now_add=True)
-    word = models.CharField(max_length=100)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    period_type = models.CharField(max_length=10)
-
-    def __str__(self):
-        return self.word
-
-    class Meta:
-        ordering = ['id']
+class GoogleRelatedTopic(GoogleTrends):
+    pass
 
 
 class YouTubeTrend(models.Model):

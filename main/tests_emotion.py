@@ -6,6 +6,22 @@ from main.models import TrendEmotion
 
 class TrendEmotionModelTestCase(TestCase):
 
+    def assert_trend_emotion_attributes(self, trend_emotion):
+        self.assertEqual(TrendEmotion.objects.count(), 1)
+        self.assertEqual(self.trend_emotion.negative_emotion, 0.5)
+        self.assertEqual(self.trend_emotion.neutral_emotion, 0.4)
+        self.assertEqual(self.trend_emotion.positive_emotion, 0.1)
+        self.assertEqual(self.trend_emotion.sadness_emotion, 0.2)
+        self.assertEqual(self.trend_emotion.fear_emotion, 0.3)
+        self.assertEqual(self.trend_emotion.love_emotion, 0.2)
+        self.assertEqual(self.trend_emotion.surprise_emotion, 0.1)
+        self.assertEqual(self.trend_emotion.anger_emotion, 0.1)
+        self.assertEqual(self.trend_emotion.joy_emotion, 0.1)
+        self.assertEqual(self.trend_emotion.word, 'test')
+        self.assertTrue(isinstance(self.trend_emotion, TrendEmotion))
+        self.assertEqual(self.trend_emotion.__str__(
+        ), self.trend_emotion.word + '-' + str(self.trend_emotion.insertion_datetime))
+
     def setUp(self):
 
         self.trend_emotion = TrendEmotion.objects.create(negative_emotion=0.5,
@@ -25,20 +41,7 @@ class TrendEmotionModelTestCase(TestCase):
 
     def test_correct_trend_emotion_model_creation(self):
 
-        self.assertEqual(TrendEmotion.objects.count(), 1)
-        self.assertEqual(self.trend_emotion.negative_emotion, 0.5)
-        self.assertEqual(self.trend_emotion.neutral_emotion, 0.4)
-        self.assertEqual(self.trend_emotion.positive_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.sadness_emotion, 0.2)
-        self.assertEqual(self.trend_emotion.fear_emotion, 0.3)
-        self.assertEqual(self.trend_emotion.love_emotion, 0.2)
-        self.assertEqual(self.trend_emotion.surprise_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.anger_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.joy_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.word, 'test')
-        self.assertTrue(isinstance(self.trend_emotion, TrendEmotion))
-        self.assertEqual(self.trend_emotion.__str__(
-        ), self.trend_emotion.word + '-' + str(self.trend_emotion.insertion_datetime))
+        self.assert_trend_emotion_attributes(self.trend_emotion)
 
     # 'negative_emotion' field
 
@@ -946,20 +949,7 @@ class TrendEmotionModelTestCase(TestCase):
 
     def test_correct_trend_emotion_update(self):
 
-        self.assertEqual(TrendEmotion.objects.count(), 1)
-        self.assertEqual(self.trend_emotion.negative_emotion, 0.5)
-        self.assertEqual(self.trend_emotion.neutral_emotion, 0.4)
-        self.assertEqual(self.trend_emotion.positive_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.sadness_emotion, 0.2)
-        self.assertEqual(self.trend_emotion.fear_emotion, 0.3)
-        self.assertEqual(self.trend_emotion.love_emotion, 0.2)
-        self.assertEqual(self.trend_emotion.surprise_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.anger_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.joy_emotion, 0.1)
-        self.assertEqual(self.trend_emotion.word, 'test')
-        self.assertTrue(isinstance(self.trend_emotion, TrendEmotion))
-        self.assertEqual(self.trend_emotion.__str__(
-        ), self.trend_emotion.word + '-' + str(self.trend_emotion.insertion_datetime))
+        self.assert_trend_emotion_attributes(self.trend_emotion)
 
         self.trend_emotion.negative_emotion = 0.3
         self.trend_emotion.neutral_emotion = 0.6
