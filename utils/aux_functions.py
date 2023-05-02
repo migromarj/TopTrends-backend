@@ -19,7 +19,7 @@ def load_countries():
         countries = all_countries()
 
         # Load countries from Twitter trends
-        twitter_countries, twitter_acronyms = trend_countries()
+        twitter_countries, _ = trend_countries()
 
         # Load countries from Google Trends
         gt_countries = google_trends_countries()
@@ -36,7 +36,7 @@ def load_countries():
                 country_pn = gt_countries[country[0]]
             elif country[1] in gt_countries:
                 country_pn = gt_countries[country[1]]
-            
+
             c = Country(name=country[0], native_name=country[1], acronym=country[2], flag=country[3], lat=country[4], lng=country[5], woeid=woeid, pn=country_pn)
             c.save()
 
@@ -44,7 +44,7 @@ def setup_countries(kwargs):
 
     load_countries()
 
-    name = kwargs.get('country') 
+    name = kwargs.get('country')
     trends_number = kwargs.get('trends_number') if kwargs.get('trends_number') else 5
 
     filtered_country = Country.objects.filter(name=name)

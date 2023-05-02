@@ -1,6 +1,7 @@
 import re
 from pytrends.request import TrendReq
 from pytz import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrend, GoogleWordTrendPeriod, GoogleTopic, GoogleRelatedTopic
 
@@ -42,7 +43,7 @@ def get_country_trends(country_name):
             res.append(t[0])
 
         return res
-    except:
+    except ObjectDoesNotExist:
         return []
 
 def load_country_trends(country_name):
@@ -119,6 +120,6 @@ def load_related_topics(word, country_name, period_type):
     trends_topics = pytrends.related_topics()
     top_topics = trends_topics.get(word).get("top")
 
-    for index, row in top_topics.iterrows():
+    for _, row in top_topics.iterrows():
         gt = GoogleTopic(topic_title=row['topic_title'], topic_type=row['topic_type'], value=row['value'], main_topic=grt)
         gt.save()

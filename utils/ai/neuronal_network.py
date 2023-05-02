@@ -65,7 +65,7 @@ def model_predict(word, video_id):
         try:
             with open('tokenizer_1.pkl', 'rb') as f:
                 tokenizer_1 = pickle.load(f)
-        except:
+        except FileNotFoundError:
             tokenizer_1 = init_tokenizer_1()
 
     global tokenizer_2
@@ -73,18 +73,18 @@ def model_predict(word, video_id):
         try:
             with open('tokenizer_2.pkl', 'rb') as f:
                 tokenizer_2 = pickle.load(f)
-        except:
+        except FileNotFoundError:
             tokenizer_2 = init_tokenizer_2()
 
     texts = []
     if word != None and video_id == None:
         texts = get_relevant_tweets(word)
     elif word == None and video_id != None:
-        texts = get_relevant_comments(video_id, 50)
+        texts = get_relevant_comments(video_id, 50, [])
 
     if len(texts) == 0:
         return None, None, None, None, None, None, None, None, None
-    
+
     model_1 = keras.models.load_model('trained_model_1.h5')
     model_2 = keras.models.load_model('trained_model_2.h5')
 
@@ -134,9 +134,9 @@ def load_trend_emotions(word, video_id):
         if TrendEmotion.objects.filter(word=word).exists():
             TrendEmotion.objects.filter(word=word).delete()
 
-        te = TrendEmotion(word=word, 
-                        negative_emotion=negative, 
-                        neutral_emotion=neutral, 
+        te = TrendEmotion(word=word,
+                        negative_emotion=negative,
+                        neutral_emotion=neutral,
                         positive_emotion=positive,
                         sadness_emotion=sadness,
                         fear_emotion=fear,
@@ -155,7 +155,7 @@ def load_trend_emotions(word, video_id):
         if TrendEmotion.objects.filter(video_id=video_id).exists():
             TrendEmotion.objects.filter(video_id=video_id).delete()
 
-        te = TrendEmotion(video_id=video_id, 
+        te = TrendEmotion(video_id=video_id,
                         negative_emotion=negative, 
                         neutral_emotion=neutral, 
                         positive_emotion=positive,

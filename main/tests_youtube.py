@@ -33,7 +33,7 @@ class YouTubeTrendTypeTestCase(TestCase):
     # 'name' field
 
     def test_correct_yt_trend_type_model_max_length_name(self):
-        
+
         yt_trend_type = YouTubeTrendType.objects.create(name='N' * 100, category_id=10)
         self.assertEqual(yt_trend_type.name, 'N'*100)
 
@@ -615,7 +615,7 @@ class YouTubeTrendModelTestCase(TestCase):
         self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
 
         country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
-        yt_trend_type = YouTubeTrendType.objects.create(name='Sports', category_id=17) 
+        yt_trend_type = YouTubeTrendType.objects.create(name='Sports', category_id=17)
         yt_country_trend = YouTubeCountryTrend.objects.create(country=country, trend_type=yt_trend_type)
 
         self.yt_trend.title = 'new_title'

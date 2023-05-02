@@ -8,7 +8,7 @@ def all_countries():
     countries = []
 
     if response.status_code == 200:
-        
+
         data = response.json()
 
         for country in data:

@@ -63,7 +63,7 @@ class Query(ObjectType):
         if filtered_country.exists() and Country.objects.get(name=name).woeid != None:
 
             if TwitterCountryTrend.objects.filter(country__name=name).exists():
-            
+
                 twitter_country_trends = TwitterCountryTrend.objects.get(country__name=name)
 
                 cond_1 = remove_cache(twitter_country_trends)
@@ -74,7 +74,7 @@ class Query(ObjectType):
             else:
                 load_twitter_country_trends(name)
 
-            return TwitterTrend.objects.filter(country_trend__country__name=name)[:trends_number]      
+            return TwitterTrend.objects.filter(country_trend__country__name=name)[:trends_number]
 
         return []
 
@@ -98,7 +98,7 @@ class Query(ObjectType):
             else:
                 load_google_country_trends(name)
 
-            return GoogleTrend.objects.filter(country_trend__country__name=name)[:trends_number]         
+            return GoogleTrend.objects.filter(country_trend__country__name=name)[:trends_number]
 
         return []
 
@@ -122,7 +122,7 @@ class Query(ObjectType):
             else:
                 load_google_word_trend(word, country_name, period_type)
 
-            aux = GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)         
+            aux = GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)
 
             return sorted(aux, key=lambda x: x.id)
 

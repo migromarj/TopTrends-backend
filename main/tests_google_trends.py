@@ -1,11 +1,11 @@
 from django.test import TestCase
 from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic
 from datetime import datetime
-import pytz 
+import pytz
 
 # Tests of the Google Trends models
 
-FLAG_URL_BR = 'https://flagcdn.com/br.svg'  
+FLAG_URL_BR = 'https://flagcdn.com/br.svg'
 FLAG_URL_AR = 'https://flagcdn.com/ar.svg'
 TOPIC_TITLE = 'Topic title'
 TOPIC_TYPE = 'Topic type'
@@ -14,7 +14,7 @@ TOPIC_TYPE = 'Topic type'
 class GoogleTrendsTestCase(TestCase):
 
     def setUp(self):
-        
+
         country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
         self.google_country_trend = GoogleCountryTrend.objects.create(country=country)
         self.google_trend = GoogleTrend.objects.create(name='Trend', country_trend=self.google_country_trend)
@@ -615,7 +615,7 @@ class GoogleWordTrendModelTestCase(TestCase):
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 1)
         self.google_word_trend.delete()
         self.assertEqual(GoogleWordTrend.objects.count(), 0)
-        self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0) 
+        self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0)
 
 
 class GoogleTopicModelTestCase(TestCase):
@@ -956,7 +956,7 @@ class GoogleRelatedTopicModelTestCase(TestCase):
     def test_incorrect_google_related_topic_model_creation_blank_period_type(self):
         
         with self.assertRaises(Exception):
-            GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='')
+            google_related_topic = GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='')
             google_related_topic.full_clean()
 
     def test_incorrect_google_related_topic_model_creation_max_length_period_type(self):

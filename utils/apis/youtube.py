@@ -2,6 +2,7 @@ import requests
 from decouple import config
 from datetime import datetime
 from pytz import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import Country, YouTubeTrend, YouTubeTrendType, YouTubeCountryTrend
 
@@ -16,18 +17,18 @@ def get_country_trends(country_name, trend_type):
         if YouTubeTrendType.objects.filter(name=trend_type).exists():
             if trend_type != 'Default':
                 category_id = YouTubeTrendType.objects.get(name=trend_type).category_id
-                url = ("https://www.googleapis.com/youtube/v3/videos" + 
-                        "?part=snippet&chart=mostPopular&regionCode=" + acronym + 
+                url = ("https://www.googleapis.com/youtube/v3/videos" +
+                        "?part=snippet&chart=mostPopular&regionCode=" + acronym +
                         "&videoCategoryId=" + str(category_id) + "&key=" + youtube_api_key)
             else:
-                url = ("https://www.googleapis.com/youtube/v3/videos" + 
-                        "?part=snippet&chart=mostPopular&regionCode=" + acronym + 
+                url = ("https://www.googleapis.com/youtube/v3/videos" +
+                        "?part=snippet&chart=mostPopular&regionCode=" + acronym +
                         "&key=" + youtube_api_key)
 
             response = requests.get(url)
             return get_country_trends_aux(response, url, [], 0)
         return []
-    except:
+    except ObjectDoesNotExist:
         return []
 
 def get_country_trends_aux(response, url, res, trends_number):
@@ -52,7 +53,7 @@ def get_country_trends_aux(response, url, res, trends_number):
             page_token = data['nextPageToken']
             url = url.split("&pageToken=")[0] + "&pageToken=" + page_token
             response = requests.get(url)
-            
+
             return get_country_trends_aux(response, url, res_aux, trends_number + 5)
         else:
             return res
@@ -143,7 +144,7 @@ def load_country_trends(country_name, trend_type):
                 yt = YouTubeTrend(video_id=t[0], title=t[1], published_at=timezone("UTC").localize(datetime.strptime(t[2], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[3], channel_title=t[4], view_count=t[5][0], like_count=t[5][1], comment_count=t[5][2], country_trend=yct)
                 yt.save()
 
-def get_relevant_comments(video_id, number_of_comments, comments_ls=[], next_page_token=None):
+def get_relevant_comments(video_id, number_of_comments, comments_ls, next_page_token=None):
 
     youtube_api_key = config('YOUTUBE_API_KEY')
 

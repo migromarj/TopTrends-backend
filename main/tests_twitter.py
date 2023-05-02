@@ -9,7 +9,7 @@ TREND_URL = 'https://trend.com'
 class TwitterTrendModelTestCase(TestCase):
 
     def setUp(self):
-        
+
         country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
         self.twitter_country_trend = TwitterCountryTrend.objects.create(country=country)
         self.twitter_trend = TwitterTrend.objects.create(name='Trend', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
@@ -156,7 +156,7 @@ class TwitterTrendModelTestCase(TestCase):
         
         with self.assertRaises(Exception):
             self.twitter_trend.name = None
-            self.twitter_trend.save()  
+            self.twitter_trend.save()
 
     def test_incorrect_twitter_trend_model_update_blank_name(self):
 

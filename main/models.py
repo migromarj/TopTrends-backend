@@ -74,7 +74,7 @@ class GoogleCountryTrend(models.Model):
 
     class Meta:
         ordering = ['country', 'id']
-        
+
 class GoogleWordTrendPeriod(models.Model):
     
     id = models.AutoField(primary_key=True)

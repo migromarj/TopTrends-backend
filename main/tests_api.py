@@ -48,7 +48,7 @@ class CountriesTestCase(TestCase):
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(result.data['allCountries'][0]['name'], 'Spain') 
+        self.assertEqual(result.data['allCountries'][0]['name'], 'Spain')
 
     def test_correct_specific_country_not_found(self):
 
@@ -299,7 +299,7 @@ class WordGoogleTrendsTestCase(TestCase):
         self.assertEqual(len(result.data['wordGoogleTrends']), 0)
 
     def test_unknow_period_type(self):
-            
+
             query = """
                 query{
                     wordGoogleTrends(word:"Mercadona", country:"Spain", periodType:"Not period type"){

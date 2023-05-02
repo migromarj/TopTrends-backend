@@ -10,7 +10,7 @@ class CountryModelTestCase(TestCase):
     def setUp(self):
 
         self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil', lat=-10, lng=-55)
-    
+
 
     ####################################
     ### Country model creation tests ###
@@ -251,7 +251,7 @@ class CountryModelTestCase(TestCase):
         self.country.save()
         
         self.assertEqual(self.country.name, 'Brasil Update')
-        self.assertEqual(self.country.native_name, 'Brazil Update')  
+        self.assertEqual(self.country.native_name, 'Brazil Update')
         self.assertEqual(self.country.acronym, 'BU')
         self.assertEqual(self.country.flag, 'https://flagcdn.com/bu.svg')
         self.assertEqual(self.country.woeid, 123456)
@@ -275,7 +275,7 @@ class CountryModelTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.country.name = None
-            self.country.save() 
+            self.country.save()
 
     def test_incorrect_country_model_update_blank_name(self):
 
@@ -283,7 +283,7 @@ class CountryModelTestCase(TestCase):
             
         with self.assertRaises(Exception):
             self.country.name = ''
-            self.country.full_clean() 
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_max_length_name(self):
         
