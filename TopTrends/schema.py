@@ -11,33 +11,41 @@ from utils.apis.youtube import load_country_trends as load_youtube_country_trend
 from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
 from utils.ai.neuronal_network import load_trend_emotions
 
+
 class CountryType(DjangoObjectType):
     class Meta:
         model = Country
+
 
 class TwitterTrendType(DjangoObjectType):
     class Meta:
         model = TwitterTrend
 
+
 class GoogleTrendType(DjangoObjectType):
     class Meta:
         model = GoogleTrend
+
 
 class GoogleWordTrendType(DjangoObjectType):
     class Meta:
         model = GoogleWordTrendPeriod
 
+
 class RelatedTopic(DjangoObjectType):
     class Meta:
         model = GoogleTopic
+
 
 class YouTubeTrendType(DjangoObjectType):
     class Meta:
         model = YouTubeTrend
 
+
 class TrendEmotionType(DjangoObjectType):
     class Meta:
         model = TrendEmotion
+
 
 class Query(ObjectType):
 
@@ -54,7 +62,8 @@ class Query(ObjectType):
 
         return Country.objects.all()
 
-    country_twitter_trends = graphene.List(TwitterTrendType, country=graphene.String(), trends_number=graphene.Int())
+    country_twitter_trends = graphene.List(
+        TwitterTrendType, country=graphene.String(), trends_number=graphene.Int())
 
     def resolve_country_twitter_trends(self, info, **kwargs):
 
@@ -64,7 +73,8 @@ class Query(ObjectType):
 
             if TwitterCountryTrend.objects.filter(country__name=name).exists():
 
-                twitter_country_trends = TwitterCountryTrend.objects.get(country__name=name)
+                twitter_country_trends = TwitterCountryTrend.objects.get(
+                    country__name=name)
 
                 cond_1 = remove_cache(twitter_country_trends)
 
@@ -78,7 +88,8 @@ class Query(ObjectType):
 
         return []
 
-    country_google_trends = graphene.List(GoogleTrendType, country=graphene.String(), trends_number=graphene.Int())
+    country_google_trends = graphene.List(
+        GoogleTrendType, country=graphene.String(), trends_number=graphene.Int())
 
     def resolve_country_google_trends(self, info, **kwargs):
 
@@ -87,8 +98,9 @@ class Query(ObjectType):
         if filtered_country.exists() and Country.objects.get(name=name).pn != None:
 
             if GoogleCountryTrend.objects.filter(country__name=name).exists():
-            
-                google_country_trends = GoogleCountryTrend.objects.get(country__name=name)
+
+                google_country_trends = GoogleCountryTrend.objects.get(
+                    country__name=name)
 
                 cond_1 = remove_cache(google_country_trends)
 
@@ -102,7 +114,8 @@ class Query(ObjectType):
 
         return []
 
-    word_google_trends = graphene.List(GoogleWordTrendType, word=graphene.String(), country=graphene.String(), period_type=graphene.String())
+    word_google_trends = graphene.List(GoogleWordTrendType, word=graphene.String(
+    ), country=graphene.String(), period_type=graphene.String())
 
     def resolve_word_google_trends(self, info, **kwargs):
 
@@ -112,7 +125,8 @@ class Query(ObjectType):
 
             if GoogleWordTrend.objects.filter(country__name=country_name, word=word, period_type=period_type).exists():
 
-                google_word_trends = GoogleWordTrend.objects.get(country__name=country_name, word=word, period_type=period_type)
+                google_word_trends = GoogleWordTrend.objects.get(
+                    country__name=country_name, word=word, period_type=period_type)
 
                 cond_1 = remove_cache(google_word_trends)
 
@@ -122,13 +136,15 @@ class Query(ObjectType):
             else:
                 load_google_word_trend(word, country_name, period_type)
 
-            aux = GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)
+            aux = GoogleWordTrendPeriod.objects.filter(
+                word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)
 
             return sorted(aux, key=lambda x: x.id)
 
         return []
 
-    word_related_topics = graphene.List(RelatedTopic, word=graphene.String(), country=graphene.String(), period_type=graphene.String(), topics_number=graphene.Int())
+    word_related_topics = graphene.List(RelatedTopic, word=graphene.String(
+    ), country=graphene.String(), period_type=graphene.String(), topics_number=graphene.Int())
 
     def resolve_word_related_topics(self, info, **kwargs):
 
@@ -139,7 +155,8 @@ class Query(ObjectType):
 
             if GoogleRelatedTopic.objects.filter(country__name=country_name, word=word, period_type=period_type).exists():
 
-                google_related_topics = GoogleRelatedTopic.objects.get(country__name=country_name, word=word, period_type=period_type)
+                google_related_topics = GoogleRelatedTopic.objects.get(
+                    country__name=country_name, word=word, period_type=period_type)
 
                 cond_1 = remove_cache(google_related_topics)
 
@@ -153,7 +170,8 @@ class Query(ObjectType):
 
         return []
 
-    you_tube_video = graphene.Field(YouTubeTrendType, video_id=graphene.String())
+    you_tube_video = graphene.Field(
+        YouTubeTrendType, video_id=graphene.String())
 
     def resolve_you_tube_video(self, info, **kwargs):
 
@@ -165,7 +183,8 @@ class Query(ObjectType):
 
         return None
 
-    country_you_tube_trends = graphene.List(YouTubeTrendType, country=graphene.String(), trend_type=graphene.String(), trends_number=graphene.Int())
+    country_you_tube_trends = graphene.List(YouTubeTrendType, country=graphene.String(
+    ), trend_type=graphene.String(), trends_number=graphene.Int())
 
     def resolve_country_you_tube_trends(self, info, **kwargs):
 
@@ -176,7 +195,8 @@ class Query(ObjectType):
 
             if YouTubeCountryTrend.objects.filter(country__name=name, trend_type__name=trend_type).exists():
 
-                youtube_country_trends = YouTubeCountryTrend.objects.get(country__name=name, trend_type__name=trend_type)
+                youtube_country_trends = YouTubeCountryTrend.objects.get(
+                    country__name=name, trend_type__name=trend_type)
 
                 cond_1 = remove_cache(youtube_country_trends)
 
@@ -190,7 +210,8 @@ class Query(ObjectType):
 
         return []
 
-    trend_emotions = graphene.List(TrendEmotionType, word=graphene.String(), video_id=graphene.String())
+    trend_emotions = graphene.List(
+        TrendEmotionType, word=graphene.String(), video_id=graphene.String())
 
     def resolve_trend_emotions(self, info, **kwargs):
 
@@ -213,9 +234,9 @@ class Query(ObjectType):
             return TrendEmotion.objects.filter(word=word)
 
         elif word == None and video_id != None:
-            
+
             if TrendEmotion.objects.filter(video_id=video_id).exists():
-                
+
                 trend_emotions = TrendEmotion.objects.get(video_id=video_id)
                 cond_1 = remove_cache(trend_emotions)
 
@@ -228,5 +249,6 @@ class Query(ObjectType):
             return TrendEmotion.objects.filter(video_id=video_id)
 
         return []
+
 
 schema = graphene.Schema(query=Query)

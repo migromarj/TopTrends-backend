@@ -1,5 +1,6 @@
 import requests
 
+
 def all_countries():
 
     url = "https://restcountries.com/v2/all"
@@ -16,9 +17,9 @@ def all_countries():
             native_name = country['nativeName']
             alpha2_code = country['alpha2Code']
             flag = country['flag']
-            
+
             lat, lng = None, None
-            
+
             if 'latlng' in country:
                 lat, lng = country['latlng']
 

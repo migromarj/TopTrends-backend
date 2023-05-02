@@ -10,6 +10,7 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 ### Auxiliar functions to use in schema.py ###
 
+
 def load_countries():
 
     n_countries = Country.objects.count()
@@ -37,19 +38,23 @@ def load_countries():
             elif country[1] in gt_countries:
                 country_pn = gt_countries[country[1]]
 
-            c = Country(name=country[0], native_name=country[1], acronym=country[2], flag=country[3], lat=country[4], lng=country[5], woeid=woeid, pn=country_pn)
+            c = Country(name=country[0], native_name=country[1], acronym=country[2],
+                        flag=country[3], lat=country[4], lng=country[5], woeid=woeid, pn=country_pn)
             c.save()
+
 
 def setup_countries(kwargs):
 
     load_countries()
 
     name = kwargs.get('country')
-    trends_number = kwargs.get('trends_number') if kwargs.get('trends_number') else 5
+    trends_number = kwargs.get(
+        'trends_number') if kwargs.get('trends_number') else 5
 
     filtered_country = Country.objects.filter(name=name)
 
     return name, trends_number, filtered_country
+
 
 def setup_words(kwargs):
 
@@ -59,14 +64,15 @@ def setup_words(kwargs):
     period_type = kwargs.get('period_type')
     country_name = kwargs.get('country')
     filtered_country = Country.objects.filter(name=country_name)
-    
+
     return word, period_type, country_name, filtered_country
+
 
 def remove_cache(obj):
 
     d1 = obj.insertion_datetime + timedelta(hours=1)
     d1 = datetime.strptime(str(d1).split("+")[0], DATE_FORMAT)
-    
+
     d2 = datetime.strptime(str(datetime.now()), DATE_FORMAT)
 
     if d1 < d2 - timedelta(hours=1):

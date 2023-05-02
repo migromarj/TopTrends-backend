@@ -1,18 +1,19 @@
+from main.models import TrendEmotion
+from utils.apis.youtube import get_relevant_comments
+from utils.apis.twitter import get_relevant_tweets
+import pickle
+from datasets import load_dataset
+import numpy as np
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow import keras
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-from tensorflow import keras
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-import numpy as np
-from datasets import load_dataset
-import pickle
-from utils.apis.twitter import get_relevant_tweets
-from utils.apis.youtube import get_relevant_comments
-from main.models import TrendEmotion
 
 tokenizer_1 = None
 tokenizer_2 = None
+
 
 def init_tokenizer_1():
     global tokenizer_1
@@ -31,6 +32,7 @@ def init_tokenizer_1():
 
     return tokenizer_1
 
+
 def init_tokenizer_2():
     global tokenizer_2
     if tokenizer_2:
@@ -48,15 +50,20 @@ def init_tokenizer_2():
 
     return tokenizer_2
 
+
 def get_sequences_1(tokenizer, texts):
     sequences = tokenizer.texts_to_sequences(texts)
-    padded = pad_sequences(sequences, truncating='post', padding='post', maxlen=35)
+    padded = pad_sequences(sequences, truncating='post',
+                           padding='post', maxlen=35)
     return padded
+
 
 def get_sequences_2(tokenizer, texts):
     sequences = tokenizer.texts_to_sequences(texts)
-    padded = pad_sequences(sequences, truncating='post', padding='post', maxlen=50)
+    padded = pad_sequences(sequences, truncating='post',
+                           padding='post', maxlen=50)
     return padded
+
 
 def model_predict(word, video_id):
 
@@ -92,10 +99,12 @@ def model_predict(word, video_id):
     sadness, fear, love, surprise, anger, joy = 0, 0, 0, 0, 0, 0
 
     for text in texts:
-        seq_1 = get_sequences_1(tokenizer_1,[text])
-        result_1 = model_1.predict(np.expand_dims(seq_1[0], axis=0), verbose = 0)[0]
-        seq_2 = get_sequences_2(tokenizer_2,[text])
-        result_2 = model_2.predict(np.expand_dims(seq_2[0], axis=0), verbose = 0)[0]
+        seq_1 = get_sequences_1(tokenizer_1, [text])
+        result_1 = model_1.predict(
+            np.expand_dims(seq_1[0], axis=0), verbose=0)[0]
+        seq_2 = get_sequences_2(tokenizer_2, [text])
+        result_2 = model_2.predict(
+            np.expand_dims(seq_2[0], axis=0), verbose=0)[0]
 
         negative += result_1[0]
         neutral += result_1[1]
@@ -107,7 +116,7 @@ def model_predict(word, video_id):
         surprise += result_2[3]
         anger += result_2[4]
         joy += result_2[5]
-        
+
     sum_1 = negative + neutral + positive
     total_negative = negative/sum_1
     total_neutral = neutral/sum_1
@@ -120,13 +129,15 @@ def model_predict(word, video_id):
     total_surprise = surprise/sum_2
     total_anger = anger/sum_2
     total_joy = joy/sum_2
-        
+
     return total_negative, total_neutral, total_positive, total_sadness, total_fear, total_love, total_surprise, total_anger, total_joy
 
+
 def load_trend_emotions(word, video_id):
-    
+
     if word != None and video_id == None:
-        negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(word, None)
+        negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(
+            word, None)
 
         if not negative or not neutral or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
             return None
@@ -135,19 +146,20 @@ def load_trend_emotions(word, video_id):
             TrendEmotion.objects.filter(word=word).delete()
 
         te = TrendEmotion(word=word,
-                        negative_emotion=negative,
-                        neutral_emotion=neutral,
-                        positive_emotion=positive,
-                        sadness_emotion=sadness,
-                        fear_emotion=fear,
-                        love_emotion=love,
-                        surprise_emotion=surprise,
-                        anger_emotion=anger,
-                        joy_emotion=joy)
+                          negative_emotion=negative,
+                          neutral_emotion=neutral,
+                          positive_emotion=positive,
+                          sadness_emotion=sadness,
+                          fear_emotion=fear,
+                          love_emotion=love,
+                          surprise_emotion=surprise,
+                          anger_emotion=anger,
+                          joy_emotion=joy)
         te.save()
 
     elif word == None and video_id != None:
-        negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(None, video_id)
+        negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(
+            None, video_id)
 
         if not negative or not neutral or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
             return None
@@ -156,13 +168,13 @@ def load_trend_emotions(word, video_id):
             TrendEmotion.objects.filter(video_id=video_id).delete()
 
         te = TrendEmotion(video_id=video_id,
-                        negative_emotion=negative, 
-                        neutral_emotion=neutral, 
-                        positive_emotion=positive,
-                        sadness_emotion=sadness,
-                        fear_emotion=fear,
-                        love_emotion=love,
-                        surprise_emotion=surprise,
-                        anger_emotion=anger,
-                        joy_emotion=joy)
+                          negative_emotion=negative,
+                          neutral_emotion=neutral,
+                          positive_emotion=positive,
+                          sadness_emotion=sadness,
+                          fear_emotion=fear,
+                          love_emotion=love,
+                          surprise_emotion=surprise,
+                          anger_emotion=anger,
+                          joy_emotion=joy)
         te.save()
