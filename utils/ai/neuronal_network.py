@@ -93,9 +93,9 @@ def model_predict(word, video_id):
 
     for text in texts:
         seq_1 = get_sequences_1(tokenizer_1,[text])
-        result_1 = model_1.predict(np.expand_dims(seq_1[0], axis=0))[0]
+        result_1 = model_1.predict(np.expand_dims(seq_1[0], axis=0), verbose = 0)[0]
         seq_2 = get_sequences_2(tokenizer_2,[text])
-        result_2 = model_2.predict(np.expand_dims(seq_2[0], axis=0))[0]
+        result_2 = model_2.predict(np.expand_dims(seq_2[0], axis=0), verbose = 0)[0]
 
         negative += result_1[0]
         neutral += result_1[1]

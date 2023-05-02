@@ -1,0 +1,65 @@
+name: TopTrends-backend main workflow
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+      - fix/**
+  pull_request:
+    branches:
+      - main
+
+env:
+  DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+  TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+  TWITTER_SECRET_API_KEY: ${{ secrets.TWITTER_SECRET_API_KEY }}
+  TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+  TWITTER_SECRET_ACCESS_TOKEN: ${{ secrets.TWITTER_SECRET_ACCESS_TOKEN }}
+  YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: "toptrendsdb"
+          MYSQL_USER: "toptrends-user"
+          MYSQL_PASSWORD: "toptrends-password"
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify and configure MySQL connection
+        run: |
+          mysql --version
+          mysql --host 127.0.0.1 --port 3307 -uroot -ppassword -e "SHOW DATABASES"
+          mysql --host 127.0.0.1 --port 3307 -uroot -ppassword -e "GRANT ALL ON *.* TO 'toptrends-user'@'%'; FLUSH PRIVILEGES;"
+      - name: Set up Python 3.10.5
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.5
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install codacy-coverage
+      - name: Make Migrations and Migrate
+        run: |
+          python ./manage.py makemigrations
+          python ./manage.py migrate
+      - name: Run Tests
+        run: |
+          coverage run --branch --source=. ./manage.py test  --keepdb
+          coverage xml
+      - name: Codacy Coverage Reporter
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_TOKEN }}
+          coverage-reports: ./coverage.xml

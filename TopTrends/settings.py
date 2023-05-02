@@ -97,7 +97,7 @@ DATABASES = {
         "NAME": "toptrendsdb",
         "USER": "toptrends-user",
         "PASSWORD": "toptrends-password",
-        "HOST": "localhost",
+        "HOST": "127.0.0.1",
         "PORT": "3307",
         "OPTIONS": {
             "charset": "utf8mb4",
