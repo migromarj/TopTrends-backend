@@ -11,7 +11,18 @@ TOPIC_TITLE = 'Topic title'
 TOPIC_TYPE = 'Topic type'
 
 
-class GoogleTrendsTestCase(TestCase):
+class GoogleTrendBaseTestCase(TestCase):
+    def setUp(self):
+
+        self.country = Country.objects.create(
+            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
+        self.google_country_trend = GoogleCountryTrend.objects.create(
+            country=self.country)
+        self.google_trend = GoogleTrend.objects.create(
+            name='Trend', country_trend=self.google_country_trend)
+
+
+class GoogleTrendsTestCase(GoogleTrendBaseTestCase):
 
     def assert_google_trend_attributes(self, google):
         self.assertEqual(GoogleTrend.objects.count(), 1)
@@ -20,15 +31,6 @@ class GoogleTrendsTestCase(TestCase):
                          self.google_country_trend)
         self.assertTrue(isinstance(self.google_trend, GoogleTrend))
         self.assertEqual(self.google_trend.__str__(), self.google_trend.name)
-
-    def setUp(self):
-
-        country = Country.objects.create(
-            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
-        self.google_country_trend = GoogleCountryTrend.objects.create(
-            country=country)
-        self.google_trend = GoogleTrend.objects.create(
-            name='Trend', country_trend=self.google_country_trend)
 
     ########################################
     ### GoogleTrend model creation tests ###
@@ -162,16 +164,7 @@ class GoogleTrendsTestCase(TestCase):
         self.assertEqual(GoogleTrend.objects.count(), 0)
 
 
-class GoogleCountryTrendModelTestCase(TestCase):
-
-    def setUp(self):
-
-        self.country = Country.objects.create(
-            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
-        self.google_country_trend = GoogleCountryTrend.objects.create(
-            country=self.country)
-        self.google_trend = GoogleTrend.objects.create(
-            name='Trend', country_trend=self.google_country_trend)
+class GoogleCountryTrendModelTestCase(GoogleTrendBaseTestCase):
 
     ###############################################
     ### GoogleCountryTrend model creation tests ###
@@ -245,23 +238,19 @@ class GoogleCountryTrendModelTestCase(TestCase):
         self.assertEqual(GoogleTrend.objects.count(), 0)
 
 
-class GoogleWordTrendPeriodModelTestCase(TestCase):
-
+class GoogleWordTrendBaseTestCase(TestCase):
     def setUp(self):
-
-        country = Country.objects.create(
+        self.country = Country.objects.create(
             name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
         self.google_word_trend = GoogleWordTrend.objects.create(
-            word='Word', country=country, period_type='weekly')
+            word='Word', country=self.country, period_type='weekly')
         self.google_word_trend_period = GoogleWordTrendPeriod.objects.create(trend_datetime=datetime(
             2023, 1, 25, 0, 0, 0, 0, pytz.UTC), value=1, word_trend=self.google_word_trend)
 
-    ##################################################
-    ### GoogleWordTrendPeriod model creation tests ###
-    ##################################################
 
-    def test_correct_google_word_trend_period_model_creation(self):
+class GoogleWordTrendPeriodModelTestCase(GoogleWordTrendBaseTestCase):
 
+    def assert_google_word_trend_period_model_creation(self):
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 1)
         self.assertEqual(self.google_word_trend_period.trend_datetime,
                          datetime(2023, 1, 25, 0, 0, 0, 0, pytz.UTC))
@@ -272,6 +261,13 @@ class GoogleWordTrendPeriodModelTestCase(TestCase):
             self.google_word_trend_period, GoogleWordTrendPeriod))
         self.assertEqual(self.google_word_trend_period.__str__(), self.google_word_trend.country.name +
                          ' - ' + self.google_word_trend.word + ' - ' + str(self.google_word_trend_period.trend_datetime))
+
+    ##################################################
+    ### GoogleWordTrendPeriod model creation tests ###
+    ##################################################
+
+    def test_correct_google_word_trend_period_model_creation(self):
+        self.assert_google_word_trend_period_model_creation()
 
     # 'trend_datetime' field
 
@@ -333,11 +329,7 @@ class GoogleWordTrendPeriodModelTestCase(TestCase):
 
     def test_correct_google_word_trend_period_model_update(self):
 
-        self.assertEqual(self.google_word_trend_period.trend_datetime,
-                         datetime(2023, 1, 25, 0, 0, 0, 0, pytz.UTC))
-        self.assertEqual(self.google_word_trend_period.value, 1)
-        self.assertEqual(
-            self.google_word_trend_period.word_trend, self.google_word_trend)
+        self.assert_google_word_trend_period_model_creation()
 
         country = Country.objects.create(
             name='Argentina', native_name='Argentina', acronym='AR', flag=FLAG_URL_AR, woeid=332471, pn='argentina')
@@ -440,16 +432,7 @@ class GoogleWordTrendPeriodModelTestCase(TestCase):
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0)
 
 
-class GoogleWordTrendModelTestCase(TestCase):
-
-    def setUp(self):
-
-        self.country = Country.objects.create(
-            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
-        self.google_word_trend = GoogleWordTrend.objects.create(
-            word='Word', country=self.country, period_type='weekly')
-        self.google_word_trend_period = GoogleWordTrendPeriod.objects.create(trend_datetime=datetime(
-            2023, 1, 25, 0, 0, 0, 0, pytz.UTC), value=1, word_trend=self.google_word_trend)
+class GoogleWordTrendModelTestCase(GoogleWordTrendBaseTestCase):
 
     ############################################
     ### GoogleWordTrend model creation tests ###
@@ -650,7 +633,17 @@ class GoogleWordTrendModelTestCase(TestCase):
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0)
 
 
-class GoogleTopicModelTestCase(TestCase):
+class GoogleTopicBaseTestCase(TestCase):
+    def setUp(self):
+        self.country = Country.objects.create(
+            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
+        self.google_related_topic = GoogleRelatedTopic.objects.create(
+            word='Word', country=self.country, period_type='weekly')
+        self.google_topic = GoogleTopic.objects.create(
+            topic_title=TOPIC_TITLE, topic_type=TOPIC_TYPE, value=1, main_topic=self.google_related_topic)
+
+
+class GoogleTopicModelTestCase(GoogleTopicBaseTestCase):
 
     def assert_google_topic_model_fields(self, google_topic):
         self.assertEqual(GoogleTopic.objects.count(), 1)
@@ -662,15 +655,6 @@ class GoogleTopicModelTestCase(TestCase):
         self.assertTrue(isinstance(self.google_topic, GoogleTopic))
         self.assertEqual(self.google_topic.__str__(
         ), self.google_topic.main_topic.word + ' - ' + self.google_topic.topic_title)
-
-    def setUp(self):
-
-        country = Country.objects.create(
-            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
-        self.google_related_topic = GoogleRelatedTopic.objects.create(
-            word='Word', country=country, period_type='weekly')
-        self.google_topic = GoogleTopic.objects.create(
-            topic_title=TOPIC_TITLE, topic_type=TOPIC_TYPE, value=1, main_topic=self.google_related_topic)
 
     ########################################
     ### GoogleTopic model creation tests ###
@@ -928,7 +912,7 @@ class GoogleTopicModelTestCase(TestCase):
         self.assertEqual(GoogleTopic.objects.count(), 0)
 
 
-class GoogleRelatedTopicModelTestCase(TestCase):
+class GoogleRelatedTopicModelTestCase(GoogleTopicBaseTestCase):
 
     def assert_google_related_topic_model_fields(self, google_related_topic):
         self.assertEqual(GoogleRelatedTopic.objects.count(), 1)
@@ -939,15 +923,6 @@ class GoogleRelatedTopicModelTestCase(TestCase):
             self.google_related_topic, GoogleRelatedTopic))
         self.assertEqual(self.google_related_topic.__str__(),
                          self.google_related_topic.country.name + ' - ' + self.google_related_topic.word)
-
-    def setUp(self):
-
-        self.country = Country.objects.create(
-            name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL_BR, woeid=455189, pn='brazil')
-        self.google_related_topic = GoogleRelatedTopic.objects.create(
-            word='Word', country=self.country, period_type='weekly')
-        self.google_topic = GoogleTopic.objects.create(
-            topic_title=TOPIC_TITLE, topic_type=TOPIC_TYPE, value=1, main_topic=self.google_related_topic)
 
     ###############################################
     ### GoogleRelatedTopic model creation tests ###
