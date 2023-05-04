@@ -1,17 +1,21 @@
 import re
 from pytrends.request import TrendReq
 from pytz import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrend, GoogleWordTrendPeriod, GoogleTopic, GoogleRelatedTopic
 
 # Convert snake_case to Title Case
+
 
 def snake_to_title(string):
     words = re.findall(r'[a-zA-Z0-9]+', string)
     title_case = ' '.join([word.capitalize() for word in words])
     return title_case
 
+
 pytrends = TrendReq(hl='en-US', tz=360)
+
 
 def google_trends_countries():
 
@@ -26,6 +30,7 @@ def google_trends_countries():
         countries[snake_to_title(country)] = country
 
     return countries
+
 
 def get_country_trends(country_name):
 
@@ -42,8 +47,9 @@ def get_country_trends(country_name):
             res.append(t[0])
 
         return res
-    except:
+    except ObjectDoesNotExist:
         return []
+
 
 def load_country_trends(country_name):
 
@@ -63,6 +69,7 @@ def load_country_trends(country_name):
             t = GoogleTrend(name=t, country_trend=gct)
             t.save()
 
+
 def get_period(period_type):
 
     period = None
@@ -76,6 +83,7 @@ def get_period(period_type):
 
     return period
 
+
 def load_google_word_trend(word, country_name, period_type):
 
     period = get_period(period_type)
@@ -86,19 +94,23 @@ def load_google_word_trend(word, country_name, period_type):
     country = Country.objects.get(name=country_name)
 
     if GoogleWordTrend.objects.filter(word=word, country=country, period_type=period_type).exists():
-        GoogleWordTrend.objects.filter(word=word, country=country, period_type=period_type).delete()
+        GoogleWordTrend.objects.filter(
+            word=word, country=country, period_type=period_type).delete()
 
     gwt = GoogleWordTrend(word=word, country=country, period_type=period_type)
     gwt.save()
 
-    pytrends.build_payload(kw_list=[word], cat=0, timeframe=period, geo=country.acronym, gprop='')
+    pytrends.build_payload(
+        kw_list=[word], cat=0, timeframe=period, geo=country.acronym, gprop='')
 
     interest_over_time = pytrends.interest_over_time()
 
     for index, row in interest_over_time.iterrows():
         aux_index = timezone("UTC").localize(index.to_pydatetime())
-        gwt_period = GoogleWordTrendPeriod(trend_datetime=aux_index, value=row[word], word_trend=gwt)
+        gwt_period = GoogleWordTrendPeriod(
+            trend_datetime=aux_index, value=row[word], word_trend=gwt)
         gwt_period.save()
+
 
 def load_related_topics(word, country_name, period_type):
 
@@ -110,15 +122,19 @@ def load_related_topics(word, country_name, period_type):
     country = Country.objects.get(name=country_name)
 
     if GoogleRelatedTopic.objects.filter(word=word, country=country, period_type=period_type).exists():
-        GoogleRelatedTopic.objects.filter(word=word, country=country, period_type=period_type).delete()
+        GoogleRelatedTopic.objects.filter(
+            word=word, country=country, period_type=period_type).delete()
 
-    grt = GoogleRelatedTopic(word=word, country=country, period_type=period_type)
+    grt = GoogleRelatedTopic(
+        word=word, country=country, period_type=period_type)
     grt.save()
 
-    pytrends.build_payload(kw_list=[word], cat=0, timeframe=period, geo=country.acronym, gprop='')
+    pytrends.build_payload(
+        kw_list=[word], cat=0, timeframe=period, geo=country.acronym, gprop='')
     trends_topics = pytrends.related_topics()
     top_topics = trends_topics.get(word).get("top")
 
-    for index, row in top_topics.iterrows():
-        gt = GoogleTopic(topic_title=row['topic_title'], topic_type=row['topic_type'], value=row['value'], main_topic=grt)
+    for _, row in top_topics.iterrows():
+        gt = GoogleTopic(
+            topic_title=row['topic_title'], topic_type=row['topic_type'], value=row['value'], main_topic=grt)
         gt.save()
