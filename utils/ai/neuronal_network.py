@@ -64,11 +64,13 @@ def model_predict(word, video_id):
     tokenizer_2 = get_tokenizer_2()
 
     texts = []
+
     if word and not video_id:
         texts = get_relevant_tweets(word)
     elif not word and video_id:
         texts = get_relevant_comments(video_id, 50, [])
-    else:
+
+    if not texts:
         return None, None, None, None, None, None, None, None, None
 
     model_1 = keras.models.load_model('trained_model_1.h5')
@@ -96,7 +98,7 @@ def model_predict(word, video_id):
 
 def load_trend_emotions(word, video_id):
 
-    if word != None and video_id == None:
+    if word and not video_id:
         negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(
             word, None)
 
@@ -118,7 +120,7 @@ def load_trend_emotions(word, video_id):
                           joy_emotion=joy)
         te.save()
 
-    elif word == None and video_id != None:
+    elif not word and video_id:
         negative, neutral, positive, sadness, fear, love, surprise, anger, joy = model_predict(
             None, video_id)
 
