@@ -4,9 +4,8 @@ from utils.apis.countries import all_countries
 
 from main.models import Country
 
-from datetime import datetime, timedelta
-
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+from datetime import datetime
+import pytz
 
 ### Auxiliar functions to use in schema.py ###
 
@@ -70,11 +69,8 @@ def setup_words(kwargs):
 
 def remove_cache(obj):
 
-    d1 = obj.insertion_datetime + timedelta(hours=1)
-    d1 = datetime.strptime(str(d1).split("+")[0], DATE_FORMAT)
+    d1 = obj.insertion_datetime
+    d2 = datetime.now(pytz.utc)
+    elapsed_time = d2 - d1
 
-    d2 = datetime.strptime(str(datetime.now()), DATE_FORMAT)
-
-    if d1 < d2 - timedelta(hours=1):
-        return True
-    return False
+    return elapsed_time.total_seconds() > 3600

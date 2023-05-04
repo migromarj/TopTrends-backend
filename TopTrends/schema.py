@@ -218,7 +218,7 @@ class Query(ObjectType):
         word = kwargs.get('word')
         video_id = kwargs.get('video_id')
 
-        if word != None and video_id == None:
+        if word and not video_id:
 
             if TrendEmotion.objects.filter(word=word).exists():
 
@@ -233,7 +233,7 @@ class Query(ObjectType):
 
             return TrendEmotion.objects.filter(word=word)
 
-        elif word == None and video_id != None:
+        elif not word and video_id:
 
             if TrendEmotion.objects.filter(video_id=video_id).exists():
 

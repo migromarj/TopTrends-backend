@@ -15,7 +15,7 @@ tokenizer_1 = None
 tokenizer_2 = None
 
 
-def init_tokenizer_1():
+def get_tokenizer_1():
     global tokenizer_1
     if tokenizer_1:
         return tokenizer_1
@@ -33,7 +33,7 @@ def init_tokenizer_1():
     return tokenizer_1
 
 
-def init_tokenizer_2():
+def get_tokenizer_2():
     global tokenizer_2
     if tokenizer_2:
         return tokenizer_2
@@ -51,84 +51,45 @@ def init_tokenizer_2():
     return tokenizer_2
 
 
-def get_sequences_1(tokenizer, texts):
+def get_sequences(tokenizer, texts, maxlen):
     sequences = tokenizer.texts_to_sequences(texts)
     padded = pad_sequences(sequences, truncating='post',
-                           padding='post', maxlen=35)
-    return padded
-
-
-def get_sequences_2(tokenizer, texts):
-    sequences = tokenizer.texts_to_sequences(texts)
-    padded = pad_sequences(sequences, truncating='post',
-                           padding='post', maxlen=50)
+                           padding='post', maxlen=maxlen)
     return padded
 
 
 def model_predict(word, video_id):
 
-    global tokenizer_1
-    if not tokenizer_1:
-        try:
-            with open('tokenizer_1.pkl', 'rb') as f:
-                tokenizer_1 = pickle.load(f)
-        except FileNotFoundError:
-            tokenizer_1 = init_tokenizer_1()
-
-    global tokenizer_2
-    if not tokenizer_2:
-        try:
-            with open('tokenizer_2.pkl', 'rb') as f:
-                tokenizer_2 = pickle.load(f)
-        except FileNotFoundError:
-            tokenizer_2 = init_tokenizer_2()
+    tokenizer_1 = get_tokenizer_1()
+    tokenizer_2 = get_tokenizer_2()
 
     texts = []
-    if word != None and video_id == None:
+    if word and not video_id:
         texts = get_relevant_tweets(word)
-    elif word == None and video_id != None:
+    elif not word and video_id:
         texts = get_relevant_comments(video_id, 50, [])
-
-    if len(texts) == 0:
+    else:
         return None, None, None, None, None, None, None, None, None
 
     model_1 = keras.models.load_model('trained_model_1.h5')
     model_2 = keras.models.load_model('trained_model_2.h5')
 
-    negative, neutral, positive = 0, 0, 0
-    sadness, fear, love, surprise, anger, joy = 0, 0, 0, 0, 0, 0
+    seq_1 = get_sequences(tokenizer_1, texts, 35)
+    seq_2 = get_sequences(tokenizer_2, texts, 50)
 
-    for text in texts:
-        seq_1 = get_sequences_1(tokenizer_1, [text])
-        result_1 = model_1.predict(
-            np.expand_dims(seq_1[0], axis=0), verbose=0)[0]
-        seq_2 = get_sequences_2(tokenizer_2, [text])
-        result_2 = model_2.predict(
-            np.expand_dims(seq_2[0], axis=0), verbose=0)[0]
+    result_1 = model_1.predict(seq_1, verbose=0)
+    result_2 = model_2.predict(seq_2, verbose=0)
 
-        negative += result_1[0]
-        neutral += result_1[1]
-        positive += result_1[2]
-
-        sadness += result_2[0]
-        fear += result_2[1]
-        love += result_2[2]
-        surprise += result_2[3]
-        anger += result_2[4]
-        joy += result_2[5]
+    negative, neutral, positive = result_1.sum(axis=0)
+    sadness, fear, love, surprise, anger, joy = result_2.sum(axis=0)
 
     sum_1 = negative + neutral + positive
-    total_negative = negative/sum_1
-    total_neutral = neutral/sum_1
-    total_positive = positive/sum_1
+    total_negative, total_neutral, total_positive = negative / \
+        sum_1, neutral/sum_1, positive/sum_1
 
     sum_2 = sadness + fear + love + surprise + anger + joy
-    total_sadness = sadness/sum_2
-    total_fear = fear/sum_2
-    total_love = love/sum_2
-    total_surprise = surprise/sum_2
-    total_anger = anger/sum_2
-    total_joy = joy/sum_2
+    total_sadness, total_fear, total_love, total_surprise, total_anger, total_joy = sadness / \
+        sum_2, fear/sum_2, love/sum_2, surprise/sum_2, anger/sum_2, joy/sum_2
 
     return total_negative, total_neutral, total_positive, total_sadness, total_fear, total_love, total_surprise, total_anger, total_joy
 
