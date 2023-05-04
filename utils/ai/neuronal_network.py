@@ -3,7 +3,6 @@ from utils.apis.youtube import get_relevant_comments
 from utils.apis.twitter import get_relevant_tweets
 import pickle
 from datasets import load_dataset
-import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow import keras
