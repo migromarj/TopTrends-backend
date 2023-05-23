@@ -37,9 +37,10 @@ def load_countries():
             elif country[1] in gt_countries:
                 country_pn = gt_countries[country[1]]
 
-            c = Country(name=country[0], native_name=country[1], acronym=country[2],
-                        flag=country[3], lat=country[4], lng=country[5], woeid=woeid, pn=country_pn)
-            c.save()
+            if woeid or country_pn:
+                c = Country(name=country[0], native_name=country[1], acronym=country[2],
+                            flag=country[3], lat=country[4], lng=country[5], woeid=woeid, pn=country_pn)
+                c.save()
 
 
 def setup_countries(kwargs):

@@ -2,11 +2,10 @@ import tweepy
 from decouple import config
 import json
 from main.models import Country, TwitterTrend, TwitterCountryTrend
-import re
-from googletrans import Translator
-import emoji
 from django.core.exceptions import ObjectDoesNotExist
-
+from googletrans import Translator
+import re
+import emoji
 
 def api_setup():
 
@@ -85,13 +84,24 @@ def load_country_trends(country_name):
                 name=t[0], url=t[1], tweet_volume=t[2], country_trend=tct)
             t.save()
 
-
 def translate_to_english(text):
     translator = Translator()
-    text_en = translator.translate(text, dest='en').text
+    try:
+        return translator.translate(text, dest='en').text
+    except:
+        return text
+    
+def clean_text(text):
 
-    return text_en
-
+    no_emoji_text = emoji.get_emoji_regexp().sub(u'', text)
+    no_url_text = re.sub(r"http\S+", "", no_emoji_text)
+    no_mention_text = re.sub(r"@\S+", "", no_url_text)
+    no_hashtag_text = re.sub(r"#\S+", "", no_mention_text)
+    english_tweet = translate_to_english(no_hashtag_text)
+    clean_tweet = english_tweet.replace(
+        '\n', ' ').replace('\r', '').strip()
+    
+    return clean_tweet
 
 def get_relevant_tweets(trend):
 
@@ -103,13 +113,8 @@ def get_relevant_tweets(trend):
 
     for tweet in tweets:
         if not tweet.retweeted and 'RT @' not in tweet.text:
-            tweet = translate_to_english(tweet.text)
-            no_emoji_text = emoji.get_emoji_regexp().sub(u'', tweet)
-            no_url_text = re.sub(r"http\S+", "", no_emoji_text)
-            no_mention_text = re.sub(r"@\S+", "", no_url_text)
-            no_hashtag_text = re.sub(r"#\S+", "", no_mention_text)
-            clean_tweet = no_hashtag_text.replace(
-                '\n', ' ').replace('\r', '').strip()
+            
+            clean_tweet = clean_text(tweet.text)
             if clean_tweet != '':
                 res.append(clean_tweet)
 

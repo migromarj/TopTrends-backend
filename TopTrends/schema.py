@@ -9,7 +9,7 @@ from utils.apis.google_trends import load_country_trends as load_google_country_
 from utils.apis.google_trends import load_google_word_trend, load_related_topics
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
 from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
-from utils.ai.neuronal_network import load_trend_emotions
+from utils.ai.neural_network import load_trend_emotions
 
 
 class CountryType(DjangoObjectType):
@@ -59,6 +59,10 @@ class Query(ObjectType):
 
         if acronym:
             return Country.objects.filter(acronym=acronym.upper())
+
+        if Country.objects.count() != 66:
+            Country.objects.all().delete()
+            load_countries()
 
         return Country.objects.all()
 
@@ -228,7 +232,7 @@ class Query(ObjectType):
                 if cond_1:
                     load_trend_emotions(word, None)
 
-            else:
+            else:                    
                 load_trend_emotions(word, None)
 
             return TrendEmotion.objects.filter(word=word)

@@ -185,8 +185,6 @@ class TrendEmotion(models.Model):
     id = models.AutoField(primary_key=True)
     negative_emotion = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(1)])
-    neutral_emotion = models.FloatField(
-        validators=[MinValueValidator(0), MaxValueValidator(1)])
     positive_emotion = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(1)])
     sadness_emotion = models.FloatField(

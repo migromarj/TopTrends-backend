@@ -807,7 +807,6 @@ class EmotionsTestCase(TestCase):
                 trendEmotions(word: "Messi"){
                     id,
                     negativeEmotion,
-                    neutralEmotion,
                     positiveEmotion,
                     sadnessEmotion,
                     joyEmotion,
@@ -842,7 +841,6 @@ class EmotionsTestCase(TestCase):
                 trendEmotions(word: "ABCHJKGJFYDGFHCBHJJ"){
                     id,
                     negativeEmotion,
-                    neutralEmotion,
                     positiveEmotion,
                     sadnessEmotion,
                     joyEmotion,
@@ -865,7 +863,6 @@ class EmotionsTestCase(TestCase):
                 trendEmotions(videoId: "WoE6sG2JBrg"){
                     id,
                     negativeEmotion,
-                    neutralEmotion,
                     positiveEmotion,
                     sadnessEmotion,
                     joyEmotion,
@@ -902,7 +899,6 @@ class EmotionsTestCase(TestCase):
                 trendEmotions(videoId: "ABCHJKGJFYDGFHCBHJJ"){
                     id,
                     negativeEmotion,
-                    neutralEmotion,
                     positiveEmotion,
                     sadnessEmotion,
                     joyEmotion,
@@ -925,7 +921,6 @@ class EmotionsTestCase(TestCase):
                 trendEmotions(word: "Messi", videoId: "WoE6sG2JBrg"){
                     id,
                     negativeEmotion,
-                    neutralEmotion,
                     positiveEmotion,
                     sadnessEmotion,
                     joyEmotion,

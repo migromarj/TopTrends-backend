@@ -5,6 +5,7 @@ from pytz import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import Country, YouTubeTrend, YouTubeTrendType, YouTubeCountryTrend
+from utils.apis.twitter import clean_text
 
 
 def get_country_trends(country_name, trend_type):
@@ -163,7 +164,6 @@ def load_country_trends(country_name, trend_type):
                     t[2], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[3], channel_title=t[4], view_count=t[5][0], like_count=t[5][1], comment_count=t[5][2], country_trend=yct)
                 yt.save()
 
-
 def get_relevant_comments(video_id, number_of_comments, comments_ls, next_page_token=None):
 
     youtube_api_key = config('YOUTUBE_API_KEY')
@@ -176,7 +176,9 @@ def get_relevant_comments(video_id, number_of_comments, comments_ls, next_page_t
     response = requests.get(url)
 
     if response.status_code == 200:
-        if len(comments_ls) >= 500 or (len(comments_ls) > 0 and next_page_token == None):
+        if len(comments_ls) >= 50 or (len(comments_ls) > 0 and next_page_token == None):
+            
+            comments_ls.sort(key=lambda x: x[1], reverse=True)
             return [c for c, l in comments_ls[:number_of_comments]]
         else:
             data = response.json()
@@ -184,11 +186,11 @@ def get_relevant_comments(video_id, number_of_comments, comments_ls, next_page_t
 
             for comment in comments:
                 if 'snippet' in comment.keys():
-                    comment_text = comment['snippet']['topLevelComment']['snippet']['textDisplay']
-                    comment_likes = comment['snippet']['topLevelComment']['snippet']['likeCount']
-                    comments_ls.append((comment_text, comment_likes))
-
-            comments_ls.sort(key=lambda x: x[1], reverse=True)
+                    comment_text = comment['snippet']['topLevelComment']['snippet']['textOriginal']
+                    clean_comment = clean_text(comment_text)
+                    if clean_comment != '':
+                        comment_likes = comment['snippet']['topLevelComment']['snippet']['likeCount']
+                        comments_ls.append((clean_comment, comment_likes))
 
             return get_relevant_comments(video_id, number_of_comments, comments_ls, data['nextPageToken'] if 'nextPageToken' in data.keys() else None)
     else:
