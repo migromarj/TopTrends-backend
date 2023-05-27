@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 
 from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend, TrendEmotion
 
-from utils.apis.twitter import load_country_trends as load_twitter_country_trends
+from utils.scraping.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
 from utils.apis.google_trends import load_google_word_trend, load_related_topics
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
@@ -232,7 +232,7 @@ class Query(ObjectType):
                 if cond_1:
                     load_trend_emotions(word, None)
 
-            else:                    
+            else:
                 load_trend_emotions(word, None)
 
             return TrendEmotion.objects.filter(word=word)

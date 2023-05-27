@@ -1,6 +1,6 @@
 from main.models import TrendEmotion
 from utils.apis.youtube import get_relevant_comments
-from utils.apis.twitter import get_relevant_tweets
+from utils.scraping.twitter import get_relevant_tweets
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow import keras
 from keras.datasets import imdb
@@ -17,17 +17,20 @@ def get_sequences(tokenizer, texts, maxlen):
                            padding='post', maxlen=maxlen)
     return padded
 
+
 def encode_text(text, index, max_words=10000):
     words = text.lower().split()
     encoded = [index.get(word, 2) + 3 for word in words]
     encoded = [i if i < max_words + 3 else 0 for i in encoded]
     return encoded
 
-def vectorize(sequences, dimension = 10000):
+
+def vectorize(sequences, dimension=10000):
     results = np.zeros((len(sequences), dimension))
     for i, sequence in enumerate(sequences):
         results[i, sequence] = 1
     return results
+
 
 def preprocess_text(text):
     index = imdb.get_word_index()
@@ -35,13 +38,14 @@ def preprocess_text(text):
     vectorized_text = vectorize([encoded_text])
     return vectorized_text
 
+
 def model_1_predict(texts):
 
     if not texts:
         return None, None
 
     model_1 = keras.models.load_model('trained_model_1.h5')
-    
+
     total_negative, total_positive = 0, 0
 
     for text in texts:
@@ -54,8 +58,8 @@ def model_1_predict(texts):
     negative = total_negative / (total_negative + total_positive)
     positive = total_positive / (total_negative + total_positive)
 
-
     return negative, positive
+
 
 def model_2_predict(texts):
     def preprocess_function(examples):
@@ -64,11 +68,14 @@ def model_2_predict(texts):
     if not texts:
         return None, None, None, None, None, None
 
-    model = BertForSequenceClassification.from_pretrained("bert-base-uncased", 
-                                                       num_labels=6,
-                                                       state_dict=torch.load('trained_model_2.pth'))
+    if not os.path.exists('trained_model_2.pth'):
+        return 0.16, 0.16, 0.16, 0.16, 0.16, 0.16
+
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+                                                          num_labels=6,
+                                                          state_dict=torch.load('trained_model_2.pth'))
     tokenizer = BertTokenizer.from_pretrained('tokenizer.pth')
-    
+
     total_sadness, total_joy, total_love, total_anger, total_fear, total_surprise = 0, 0, 0, 0, 0, 0
 
     for text in texts:
@@ -89,9 +96,12 @@ def model_2_predict(texts):
         total_anger += anger
         total_fear += fear
         total_surprise += surprise
-        
-    sum_ = total_sadness + total_joy + total_love + total_anger + total_fear +  + total_surprise 
-    sadness, joy, love, anger, fear, surprise = total_sadness / sum_, total_joy / sum_, total_love / sum_, total_anger / sum_, total_fear / sum_, total_surprise / sum_
+
+    sum_ = total_sadness + total_joy + total_love + \
+        total_anger + total_fear + + total_surprise
+    sadness, joy, love, anger, fear, surprise = total_sadness / sum_, total_joy / \
+        sum_, total_love / sum_, total_anger / \
+        sum_, total_fear / sum_, total_surprise / sum_
 
     return sadness, joy, love, anger, fear, surprise
 

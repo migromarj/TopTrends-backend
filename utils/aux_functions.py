@@ -1,4 +1,4 @@
-from utils.apis.twitter import trend_countries
+from utils.scraping.twitter import trend_countries
 from utils.apis.google_trends import google_trends_countries
 from utils.apis.countries import all_countries
 
@@ -19,7 +19,7 @@ def load_countries():
         countries = all_countries()
 
         # Load countries from Twitter trends
-        twitter_countries, _ = trend_countries()
+        twitter_countries = trend_countries()
 
         # Load countries from Google Trends
         gt_countries = google_trends_countries()

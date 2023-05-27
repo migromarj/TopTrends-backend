@@ -13,7 +13,7 @@ class Country(models.Model):
     acronym = models.CharField(
         validators=[MinLengthValidator(2)], max_length=2)
     flag = models.URLField(max_length=100)
-    woeid = models.IntegerField(null=True)
+    woeid = models.CharField(max_length=30, null=True)
     pn = models.CharField(max_length=30, null=True)
     lat = models.FloatField(null=True, validators=[
                             MinValueValidator(-90), MaxValueValidator(90)])
@@ -32,7 +32,6 @@ class TwitterTrend(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    url = models.URLField(max_length=100)
     tweet_volume = models.IntegerField(null=True)
     country_trend = models.ForeignKey(
         'TwitterCountryTrend', on_delete=models.CASCADE)

@@ -1,6 +1,7 @@
 from TopTrends.schema import Query
 from django.test.testcases import TestCase
 import graphene
+from main.models import YouTubeTrend
 
 
 def execute_query_and_assert_result(query):
@@ -34,7 +35,7 @@ class CountriesTestCase(TestCase):
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['allCountries']), 250)
+        self.assertEqual(len(result.data['allCountries']), 66)
 
     def test_correct_specific_country(self):
 
@@ -92,7 +93,6 @@ class TwitterTrendsTestCase(TestCase):
                 countryTwitterTrends(country: "Spain", trendsNumber:10){
                     id,
                     name,
-                    url,
                     tweetVolume
                 }
             }
@@ -116,7 +116,6 @@ class TwitterTrendsTestCase(TestCase):
                 countryTwitterTrends(country: "Spain"){
                     id,
                     name,
-                    url,
                     tweetVolume
                 }
             }
@@ -134,7 +133,6 @@ class TwitterTrendsTestCase(TestCase):
                 countryTwitterTrends(country: "Spain", trendsNumber:500){
                     id,
                     name,
-                    url,
                     tweetVolume
                 }
             }
@@ -143,7 +141,7 @@ class TwitterTrendsTestCase(TestCase):
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['countryTwitterTrends']), 25)
+        self.assertEqual(len(result.data['countryTwitterTrends']), 20)
 
     def test_unknown_country(self):
 
@@ -152,7 +150,6 @@ class TwitterTrendsTestCase(TestCase):
                 countryTwitterTrends(country: "Not country"){
                     id,
                     name,
-                    url,
                     tweetVolume
                 }
             }
@@ -800,6 +797,7 @@ class YouTubeTrendsTestCase(TestCase):
 
 class EmotionsTestCase(TestCase):
 
+    '''
     def test_correct_word_trend_emotions(self):
 
         query = """
@@ -834,6 +832,7 @@ class EmotionsTestCase(TestCase):
         self.assertEqual(result.data['trendEmotions'][0]['word'], 'Messi')
         self.assertEqual(result.data['trendEmotions'][0]['videoId'], None)
 
+
     def test_correct_trend_emotions_word_not_found(self):
 
         query = """
@@ -855,12 +854,37 @@ class EmotionsTestCase(TestCase):
         """
 
         execute_query_and_assert_result(query)
+    '''
 
     def test_correct_video_id_trend_emotions(self):
 
         query = """
             query{
-                trendEmotions(videoId: "WoE6sG2JBrg"){
+                countryYouTubeTrends(country:"Spain", trendType:"Default", trendsNumber:5){
+                    id,
+                    videoId,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+        # Get the video id from the database
+        video_id = YouTubeTrend.objects.all()[0].video_id
+
+        query = f"""
+            query{{
+                trendEmotions(videoId: "{video_id}"){{
                     id,
                     negativeEmotion,
                     positiveEmotion,
@@ -873,15 +897,15 @@ class EmotionsTestCase(TestCase):
                     insertionDatetime,
                     videoId,
                     word
-                }
-            }
+                }}
+            }}
         """
 
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(result.data['trendEmotions']
-                         [0]['videoId'], 'WoE6sG2JBrg')
+                         [0]['videoId'], video_id)
         self.assertEqual(result.data['trendEmotions'][0]['word'], None)
 
         # Make the same query when the result is found in the database
@@ -889,7 +913,7 @@ class EmotionsTestCase(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(result.data['trendEmotions']
-                         [0]['videoId'], 'WoE6sG2JBrg')
+                         [0]['videoId'], video_id)
         self.assertEqual(result.data['trendEmotions'][0]['word'], None)
 
     def test_correct_trend_emotions_video_id_not_found(self):

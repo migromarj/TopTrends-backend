@@ -9,9 +9,8 @@ media
 # Backup files #
 *.bak
 
-# Tokenizer files #
-tokenizer_1.pkl
-tokenizer_2.pkl
+# Model files #
+*.pth
 
 # If you are using PyCharm #
 # User-specific stuff
@@ -108,6 +107,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+Pipfile
 
 # mkdocs documentation
 /site
