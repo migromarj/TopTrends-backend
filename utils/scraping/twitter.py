@@ -169,21 +169,3 @@ def clean_text(text):
         '\n', ' ').replace('\r', '').strip()
 
     return clean_tweet
-
-
-def get_relevant_tweets(trend):
-
-    api = None  # api_setup()
-
-    tweets = api.search_tweets(q=trend, count=20, result_type='popular')
-
-    res = []
-
-    for tweet in tweets:
-        if not tweet.retweeted and 'RT @' not in tweet.text:
-
-            clean_tweet = clean_text(tweet.text)
-            if clean_tweet != '':
-                res.append(clean_tweet)
-
-    return res

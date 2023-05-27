@@ -797,7 +797,6 @@ class YouTubeTrendsTestCase(TestCase):
 
 class EmotionsTestCase(TestCase):
 
-    '''
     def test_correct_word_trend_emotions(self):
 
         query = """
@@ -832,7 +831,6 @@ class EmotionsTestCase(TestCase):
         self.assertEqual(result.data['trendEmotions'][0]['word'], 'Messi')
         self.assertEqual(result.data['trendEmotions'][0]['videoId'], None)
 
-
     def test_correct_trend_emotions_word_not_found(self):
 
         query = """
@@ -854,7 +852,6 @@ class EmotionsTestCase(TestCase):
         """
 
         execute_query_and_assert_result(query)
-    '''
 
     def test_correct_video_id_trend_emotions(self):
 
