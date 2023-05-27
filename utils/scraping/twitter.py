@@ -145,11 +145,17 @@ def load_country_trends(country_name):
 
 
 def translate_to_english(text):
-    translator = Translator()
-    try:
-        return translator.translate(text, dest='en').text
-    except ValueError:
-        return text
+    if text is None:
+        return ""
+    else:
+        translator = Translator()
+        try:
+            english = translator.translate(text, dest='en').text
+            if english:
+                return english
+            return ""
+        except ValueError:
+            return text
 
 
 def clean_text(text):
