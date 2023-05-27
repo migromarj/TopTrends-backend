@@ -148,7 +148,7 @@ def translate_to_english(text):
     translator = Translator()
     try:
         return translator.translate(text, dest='en').text
-    except:
+    except ValueError:
         return text
 
 
