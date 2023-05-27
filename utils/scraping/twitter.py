@@ -154,7 +154,7 @@ def translate_to_english(text):
             if english:
                 return english
             return ""
-        except ValueError:
+        except Exception:
             return text
 
 
