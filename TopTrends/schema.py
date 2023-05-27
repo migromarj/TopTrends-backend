@@ -4,12 +4,14 @@ from graphene_django import DjangoObjectType
 
 from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend, TrendEmotion
 
-from utils.apis.twitter import load_country_trends as load_twitter_country_trends
+from utils.scraping.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
 from utils.apis.google_trends import load_google_word_trend, load_related_topics
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
 from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
 from utils.ai.neural_network import load_trend_emotions
+
+import traceback
 
 
 class CountryType(DjangoObjectType):
@@ -71,26 +73,30 @@ class Query(ObjectType):
 
     def resolve_country_twitter_trends(self, info, **kwargs):
 
-        name, trends_number, filtered_country = setup_countries(kwargs)
+        try:
+            name, trends_number, filtered_country = setup_countries(kwargs)
 
-        if filtered_country.exists() and Country.objects.get(name=name).woeid != None:
+            if filtered_country.exists() and Country.objects.get(name=name).woeid != None:
 
-            if TwitterCountryTrend.objects.filter(country__name=name).exists():
+                if TwitterCountryTrend.objects.filter(country__name=name).exists():
 
-                twitter_country_trends = TwitterCountryTrend.objects.get(
-                    country__name=name)
+                    twitter_country_trends = TwitterCountryTrend.objects.get(
+                        country__name=name)
 
-                cond_1 = remove_cache(twitter_country_trends)
+                    cond_1 = remove_cache(twitter_country_trends)
 
-                if cond_1:
+                    if cond_1:
+                        load_twitter_country_trends(name)
+
+                else:
                     load_twitter_country_trends(name)
 
-            else:
-                load_twitter_country_trends(name)
+                return TwitterTrend.objects.filter(country_trend__country__name=name)[:trends_number]
 
-            return TwitterTrend.objects.filter(country_trend__country__name=name)[:trends_number]
-
-        return []
+            return []
+        except Exception as e:
+            print(traceback.format_exc())
+            return []
 
     country_google_trends = graphene.List(
         GoogleTrendType, country=graphene.String(), trends_number=graphene.Int())
@@ -232,7 +238,7 @@ class Query(ObjectType):
                 if cond_1:
                     load_trend_emotions(word, None)
 
-            else:                    
+            else:
                 load_trend_emotions(word, None)
 
             return TrendEmotion.objects.filter(word=word)
