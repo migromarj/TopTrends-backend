@@ -1,6 +1,6 @@
 from main.models import TrendEmotion
 from utils.apis.youtube import get_relevant_comments
-from utils.scraping.twitter import get_relevant_tweets
+from utils.apis.news import get_relevant_news
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow import keras
 from keras.datasets import imdb
@@ -109,7 +109,7 @@ def model_2_predict(texts):
 def load_trend_emotions(word, video_id):
 
     if word and not video_id:
-        texts = get_relevant_tweets(word)
+        texts = get_relevant_news(word)
         negative, positive = model_1_predict(texts)
         sadness, joy, love, anger, fear, surprise = model_2_predict(texts)
         if not negative or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
