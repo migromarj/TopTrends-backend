@@ -106,47 +106,43 @@ def model_2_predict(texts):
     return sadness, joy, love, anger, fear, surprise
 
 
-def load_trend_emotions(word, video_id):
+def process_emotions(texts, word=None, video_id=None):
+    negative, positive = model_1_predict(texts)
+    sadness, joy, love, anger, fear, surprise = model_2_predict(texts)
 
+    if not negative or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
+        return None
+
+    if word:
+        filter_field = "word"
+        filter_value = word
+    elif video_id:
+        filter_field = "video_id"
+        filter_value = video_id
+    else:
+        return None
+
+    if TrendEmotion.objects.filter(**{filter_field: filter_value}).exists():
+        TrendEmotion.objects.filter(**{filter_field: filter_value}).delete()
+
+    te = TrendEmotion(**{filter_field: filter_value},
+                      negative_emotion=negative,
+                      positive_emotion=positive,
+                      sadness_emotion=sadness,
+                      fear_emotion=fear,
+                      love_emotion=love,
+                      surprise_emotion=surprise,
+                      anger_emotion=anger,
+                      joy_emotion=joy)
+    te.save()
+
+
+def load_trend_emotions(word, video_id):
     if word and not video_id:
         texts = get_relevant_news(word)
-        negative, positive = model_1_predict(texts)
-        sadness, joy, love, anger, fear, surprise = model_2_predict(texts)
-        if not negative or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
-            return None
-
-        if TrendEmotion.objects.filter(word=word).exists():
-            TrendEmotion.objects.filter(word=word).delete()
-
-        te = TrendEmotion(word=word,
-                          negative_emotion=negative,
-                          positive_emotion=positive,
-                          sadness_emotion=sadness,
-                          fear_emotion=fear,
-                          love_emotion=love,
-                          surprise_emotion=surprise,
-                          anger_emotion=anger,
-                          joy_emotion=joy)
-        te.save()
-
+        process_emotions(texts, word=word)
     elif not word and video_id:
         texts = get_relevant_comments(video_id, 20, [])
-        negative, positive = model_1_predict(texts)
-        sadness, joy, love, anger, fear, surprise = model_2_predict(texts)
-
-        if not negative or not positive or not sadness or not fear or not love or not surprise or not anger or not joy:
-            return None
-
-        if TrendEmotion.objects.filter(video_id=video_id).exists():
-            TrendEmotion.objects.filter(video_id=video_id).delete()
-
-        te = TrendEmotion(video_id=video_id,
-                          negative_emotion=negative,
-                          positive_emotion=positive,
-                          sadness_emotion=sadness,
-                          fear_emotion=fear,
-                          love_emotion=love,
-                          surprise_emotion=surprise,
-                          anger_emotion=anger,
-                          joy_emotion=joy)
-        te.save()
+        process_emotions(texts, video_id=video_id)
+    else:
+        return None
