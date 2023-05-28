@@ -159,20 +159,20 @@ class CountryModelTestCase(TestCase):
 
     # 'woeid' field
 
-    def test_correct_country_model_creation_max_length_pn(self):
+    def test_correct_country_model_creation_max_length_woeid(self):
 
         country = Country.objects.create(name='Brazil', native_name='Brasil',
                                          acronym='BR', flag=FLAG_URL, woeid='b'*30, pn='brazil', lat=-10, lng=-55)
-        self.assertEqual(country.pn, 'b'*30)
+        self.assertEqual(country.woeid, 'b'*30)
 
-    def test_incorrect_country_model_creation_blank_pn(self):
+    def test_incorrect_country_model_creation_blank_woeid(self):
 
         with self.assertRaises(Exception):
             country = Country.objects.create(
                 name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid='', pn='brazil', lat=-10, lng=-55)
             country.full_clean()
 
-    def test_incorrect_country_model_creation_max_length_pn(self):
+    def test_incorrect_country_model_creation_max_length_woeid(self):
 
         with self.assertRaises(Exception):
             Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR',

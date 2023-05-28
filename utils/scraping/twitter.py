@@ -1,10 +1,10 @@
 from main.models import Country, TwitterTrend, TwitterCountryTrend
 from django.core.exceptions import ObjectDoesNotExist
-from googletrans import Translator
 import re
 import emoji
 from bs4 import BeautifulSoup
 import requests
+from utils.apis.google_translate import translate_to_english
 
 
 def trend_countries():
@@ -142,20 +142,6 @@ def load_country_trends(country_name):
             t = TwitterTrend.objects.create(
                 name=t[0], tweet_volume=t[1], country_trend=tct)
             t.save()
-
-
-def translate_to_english(text):
-    if text is None:
-        return ""
-    else:
-        translator = Translator()
-        try:
-            english = translator.translate(text, dest='en').text
-            if english:
-                return english
-            return ""
-        except Exception:
-            return text
 
 
 def clean_text(text):

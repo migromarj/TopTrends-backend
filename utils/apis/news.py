@@ -1,6 +1,6 @@
 import requests
 from decouple import config
-from utils.scraping.twitter import translate_to_english
+from utils.apis.google_translate import translate_to_english
 
 
 def get_relevant_news(trend):
