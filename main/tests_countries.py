@@ -163,7 +163,7 @@ class CountryModelTestCase(TestCase):
 
         country = Country.objects.create(name='Brazil', native_name='Brasil',
                                          acronym='BR', flag=FLAG_URL, woeid='b'*30, pn='brazil', lat=-10, lng=-55)
-        self.assertEqual(country.pn, 'b'*30)
+        self.assertEqual(country.woeid, 'b'*30)
 
     def test_incorrect_country_model_creation_blank_woeid(self):
 
