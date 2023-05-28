@@ -47,6 +47,8 @@ def get_country_trends_aux(response, url, res, trends_number):
             video_id = video['id']
             title = video['snippet']['title'] if 'title' in video['snippet'].keys(
             ) else ''
+            description = video['snippet']['description'] if 'description' in video['snippet'].keys(
+            ) else ''
             published_at = video['snippet']['publishedAt'] if 'publishedAt' in video['snippet'].keys(
             ) else ''
             thumbnail = get_thumbnail_url(
@@ -55,7 +57,7 @@ def get_country_trends_aux(response, url, res, trends_number):
             ) else ''
             statistics = get_video_statistics(
                 video_id) if 'id' in video.keys() else (None, None, None)
-            aux = [video_id, title, published_at,
+            aux = [video_id, title, description, published_at,
                    thumbnail, channel_title, statistics]
             res_aux.append(aux)
 
@@ -160,8 +162,8 @@ def load_country_trends(country_name, trend_type):
             yct.save()
 
             for t in trends:
-                yt = YouTubeTrend(video_id=t[0], title=t[1], published_at=timezone("UTC").localize(datetime.strptime(
-                    t[2], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[3], channel_title=t[4], view_count=t[5][0], like_count=t[5][1], comment_count=t[5][2], country_trend=yct)
+                yt = YouTubeTrend(video_id=t[0], title=t[1], description=t[2], published_at=timezone("UTC").localize(datetime.strptime(
+                    t[3], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[4], channel_title=t[5], view_count=t[6][0], like_count=t[6][1], comment_count=t[6][2], country_trend=yct)
                 yt.save()
 
 
