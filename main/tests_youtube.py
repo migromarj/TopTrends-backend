@@ -409,8 +409,8 @@ class YouTubeTrendModelTestCase(TestCase):
     def test_incorrect_yt_trend_model_creation_invalid_country_trend(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', 'description', datetime(
-                2019, 1, 1, 0, 0, 0, 0, pytz.UTC), URL, 1000, 100, 50, 'channel_title', 'invalid_country_trend')
+            self.create_yt_trend('valid title', 'valid description', datetime(
+                2020, 1, 1, 0, 0, 0, 0, pytz.UTC), URL, 2000, 200, 100, 'My channel title', 'invalid_country_trend')
 
     #######################################
     ### YouTubeTrend model update tests ###
