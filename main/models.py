@@ -135,6 +135,7 @@ class YouTubeTrend(models.Model):
     id = models.AutoField(primary_key=True)
     video_id = models.CharField(max_length=100)
     title = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True, max_length=5000)
     published_at = models.DateTimeField()
     thumbnail = models.URLField(max_length=100)
     view_count = models.BigIntegerField(null=True)

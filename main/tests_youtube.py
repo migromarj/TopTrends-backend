@@ -178,6 +178,7 @@ class YouTubeTrendModelTestCase(TestCase):
     def assert_yt_trend_attributes(self, yt_trend):
         self.assertEqual(YouTubeTrend.objects.count(), 1)
         self.assertEqual(self.yt_trend.title, 'title')
+        self.assertEqual(self.yt_trend.description, 'description')
         self.assertEqual(self.yt_trend.published_at,
                          datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
         self.assertEqual(self.yt_trend.thumbnail, URL)
@@ -189,8 +190,9 @@ class YouTubeTrendModelTestCase(TestCase):
         self.assertTrue(isinstance(self.yt_trend, YouTubeTrend))
         self.assertEqual(self.yt_trend.__str__(), self.yt_trend.title)
 
-    def create_yt_trend(self, title, published_at, thumbnail, view_count, like_count, comment_count, channel_title, country_trend):
+    def create_yt_trend(self, title, description, published_at, thumbnail, view_count, like_count, comment_count, channel_title, country_trend):
         return YouTubeTrend.objects.create(title=title,
+                                           description=description,
                                            published_at=published_at,
                                            thumbnail=thumbnail,
                                            view_count=view_count,
@@ -207,7 +209,7 @@ class YouTubeTrendModelTestCase(TestCase):
             name='Music', category_id=10)
         self.yt_country_trend = YouTubeCountryTrend.objects.create(
             country=country, trend_type=yt_trend_type)
-        self.yt_trend = self.create_yt_trend('title', datetime(
+        self.yt_trend = self.create_yt_trend('title', 'description', datetime(
             2019, 1, 1, 0, 0, 0, 0, pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
 
     #########################################
@@ -222,177 +224,193 @@ class YouTubeTrendModelTestCase(TestCase):
 
     def test_correct_yt_trend_model_create_max_length_title(self):
 
-        yt_trend = self.create_yt_trend('T'*200, datetime(2019, 1, 1, 0, 0, 0, 0,
+        yt_trend = self.create_yt_trend('T'*200, 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
                                         pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
         self.assertEqual(yt_trend.title, 'T'*200)
 
     def test_incorrect_yt_trend_model_create_without_title(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend(None, datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend(None, 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                               pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_create_blank_title(self):
 
         with self.assertRaises(Exception):
-            yt_trend = self.create_yt_trend('', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                         pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            yt_trend = self.create_yt_trend('', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                        pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_create_max_length_title(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('T'*201, datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('T'*201, 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+
+    # 'description' field
+
+    def test_correct_yt_trend_model_create_max_length_description(self):
+
+        yt_trend = self.create_yt_trend('title', 'D'*5000, datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                    pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+        self.assertEqual(yt_trend.description, 'D'*5000)
+
+    def test_incorrect_yt_trend_model_create_max_length_description(self):
+
+        with self.assertRaises(Exception):
+            yt_trend = self.create_yt_trend('title', 'D'*5001, datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                        pytz.UTC), URL, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+
+            yt_trend.full_clean()
 
     # 'published_at' field
 
     def test_incorrect_yt_trend_model_creation_without_published_at(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', None, URL, 1000,
+            self.create_yt_trend('title', 'description', None, URL, 1000,
                                  100, 50, 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_invalid_datetime_published_at(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', 'invalid_datetime', URL, 1000,
+            self.create_yt_trend('title', 'description', 'invalid_datetime', URL, 1000,
                                  100, 50, 'channel_title', self.yt_country_trend)
 
     # 'thumbnail' field
 
     def test_correct_yt_trend_model_creation_max_length_thumbnail(self):
 
-        yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                          pytz.UTC), URL_100_CHARS, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+        yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                         pytz.UTC), URL_100_CHARS, 1000, 100, 50, 'channel_title', self.yt_country_trend)
         self.assertEqual(yt_trend.thumbnail, URL_100_CHARS)
 
     def test_incorrect_yt_trend_model_creation_without_thumbnail(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), None, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), None, 1000, 100, 50, 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_blank_thumbnail(self):
 
         with self.assertRaises(Exception):
-            yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                              pytz.UTC), '', 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                             pytz.UTC), '', 1000, 100, 50, 'channel_title', self.yt_country_trend)
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_creation_invalid_url_thumbnail(self):
 
         with self.assertRaises(Exception):
-            yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                              pytz.UTC), 'invalid_url', 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                             pytz.UTC), 'invalid_url', 1000, 100, 50, 'channel_title', self.yt_country_trend)
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_creation_max_length_thumbnail(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL_101_CHARS, 1000, 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL_101_CHARS, 1000, 100, 50, 'channel_title', self.yt_country_trend)
 
     # 'view_count' field
 
     def test_correct_yt_trend_model_creation_max_value_view_count(self):
 
-        yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                          pytz.UTC), URL, 9223372036854775807, 100, 50, 'channel_title', self.yt_country_trend)
+        yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                         pytz.UTC), URL, 9223372036854775807, 100, 50, 'channel_title', self.yt_country_trend)
         self.assertEqual(yt_trend.view_count, 9223372036854775807)
 
     def test_incorrect_yt_trend_model_creation_invalid_integer_view_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 'invalid_integer', 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 'invalid_integer', 100, 50, 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_max_value_view_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 9223372036854775808, 100, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 9223372036854775808, 100, 50, 'channel_title', self.yt_country_trend)
 
     # 'like_count' field
 
     def test_correct_yt_trend_model_creation_max_value_like_count(self):
 
-        yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                          pytz.UTC), URL, 1000, 2147483647, 50, 'channel_title', self.yt_country_trend)
+        yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                         pytz.UTC), URL, 1000, 2147483647, 50, 'channel_title', self.yt_country_trend)
         self.assertEqual(yt_trend.like_count, 2147483647)
 
     def test_incorrect_yt_trend_model_creation_invalid_integer_like_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 'invalid_integer', 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 'invalid_integer', 50, 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_max_value_like_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 2147483648, 50, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 2147483648, 50, 'channel_title', self.yt_country_trend)
 
     # 'comment_count' field
 
     def test_correct_yt_trend_model_creation_max_value_comment_count(self):
 
-        yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                          pytz.UTC), URL, 1000, 100, 2147483647, 'channel_title', self.yt_country_trend)
+        yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                         pytz.UTC), URL, 1000, 100, 2147483647, 'channel_title', self.yt_country_trend)
         self.assertEqual(yt_trend.comment_count, 2147483647)
 
     def test_incorrect_yt_trend_model_creation_invalid_integer_comment_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 'invalid_integer', 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 'invalid_integer', 'channel_title', self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_max_value_comment_count(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 2147483648, 'channel_title', self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 2147483648, 'channel_title', self.yt_country_trend)
 
     # 'channel_title' field
 
     def test_correct_yt_trend_model_creation_max_length_channel_title(self):
 
-        yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                          pytz.UTC), URL, 1000, 100, 50, 'C' * 100, self.yt_country_trend)
+        yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                         pytz.UTC), URL, 1000, 100, 50, 'C' * 100, self.yt_country_trend)
         self.assertEqual(yt_trend.channel_title, 'C' * 100)
 
     def test_incorrect_yt_trend_model_creation_without_channel_title(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 50, None, self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 50, None, self.yt_country_trend)
 
     def test_incorrect_yt_trend_model_creation_blank_channel_title(self):
 
         with self.assertRaises(Exception):
-            yt_trend = self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                              pytz.UTC), URL, 1000, 100, 50, '', self.yt_country_trend)
+            yt_trend = self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                             pytz.UTC), URL, 1000, 100, 50, '', self.yt_country_trend)
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_creation_max_length_channel_title(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 50, 'C' * 101, self.yt_country_trend)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 50, 'C' * 101, self.yt_country_trend)
 
     # 'country_trend' field
 
     def test_incorrect_yt_trend_model_creation_without_country_trend(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 50, 'channel_title', None)
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 50, 'channel_title', None)
 
     def test_incorrect_yt_trend_model_creation_invalid_country_trend(self):
 
         with self.assertRaises(Exception):
-            self.create_yt_trend('title', datetime(2019, 1, 1, 0, 0, 0, 0,
-                                                   pytz.UTC), URL, 1000, 100, 50, 'channel_title', 'invalid_country_trend')
+            self.create_yt_trend('title', 'description', datetime(2019, 1, 1, 0, 0, 0, 0,
+                                                                  pytz.UTC), URL, 1000, 100, 50, 'channel_title', 'invalid_country_trend')
 
     #######################################
     ### YouTubeTrend model update tests ###
@@ -410,6 +428,7 @@ class YouTubeTrendModelTestCase(TestCase):
             country=country, trend_type=yt_trend_type)
 
         self.yt_trend.title = 'new_title'
+        self.yt_trend.description = 'new_description'
         self.yt_trend.published_at = datetime(2019, 1, 2, 0, 0, 0, 0, pytz.UTC)
         self.yt_trend.thumbnail = 'https://www.youtube_update.com/'
         self.yt_trend.view_count = 2000
@@ -420,6 +439,7 @@ class YouTubeTrendModelTestCase(TestCase):
         self.yt_trend.save()
 
         self.assertEqual(self.yt_trend.title, 'new_title')
+        self.assertEqual(self.yt_trend.description, 'new_description')
         self.assertEqual(self.yt_trend.published_at,
                          datetime(2019, 1, 2, 0, 0, 0, 0, pytz.UTC))
         self.assertEqual(self.yt_trend.thumbnail,
@@ -464,6 +484,26 @@ class YouTubeTrendModelTestCase(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.title = 'T' * 201
             self.yt_trend.save()
+
+    # 'description' field
+
+    def test_correct_yt_trend_model_update_max_length_description(self):
+
+        self.assertEqual(self.yt_trend.description, 'description')
+
+        self.yt_trend.description = 'D' * 5000
+        self.yt_trend.save()
+
+        self.assertEqual(self.yt_trend.description, 'D' * 5000)
+
+    def test_incorrect_yt_trend_model_update_max_length_description(self):
+
+        self.assertEqual(self.yt_trend.description, 'description')
+
+        with self.assertRaises(Exception):
+            self.yt_trend.description = 'D' * 5001
+            self.yt_trend.save()
+            self.yt_trend.full_clean()
 
     # 'published_at' field
 
