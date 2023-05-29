@@ -183,7 +183,7 @@ class Query(ObjectType):
 
         if YouTubeTrend.objects.filter(video_id=video_id).exists():
 
-            return YouTubeTrend.objects.get(video_id=video_id)
+            return YouTubeTrend.objects.filter(video_id=video_id).first()
 
         return None
 
