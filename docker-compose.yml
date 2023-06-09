@@ -1,0 +1,12 @@
+version: '1'
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: "toptrendsdb"
+      MYSQL_USER: "toptrends-user"
+      MYSQL_PASSWORD: "toptrends-password"
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - 3307:3306
